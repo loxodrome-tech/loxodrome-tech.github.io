@@ -1,0 +1,559 @@
+<title>Loxodrome Tech</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Deliberate single dark-theme brand world — Loxodrome's identity is a night chart,
+     not a light/dark toggle. Tokens are still centralized so nothing is a stray literal. */
+  :root{
+    --bg:#0a1420;
+    --bg-raise:#0d1a29;
+    --surface:#101f31;
+    --surface-hi:#152f45;
+    --line:rgba(237,234,225,0.09);
+    --line-strong:rgba(237,234,225,0.16);
+    --text:#edeae1;
+    --text-dim:#93a2b4;
+    --text-faint:#5c6b7c;
+    --accent:#39bdca;
+    --accent-dim:#2a8f99;
+    --accent-soft:rgba(57,189,202,0.12);
+    --accent-2:#e08a45;
+    --focus:#39bdca;
+    --font-display:'Unbounded', 'Arial Black', sans-serif;
+    --font-body:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+  h1,h2,h3{font-family:var(--font-display); margin:0; text-wrap:balance;}
+  p{margin:0;}
+  ::selection{background:var(--accent); color:#06121b;}
+  :focus-visible{outline:2px solid var(--focus); outline-offset:3px; border-radius:2px;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding-inline:clamp(1.25rem,4vw,3rem);}
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:0.72rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{
+    content:"";
+    width:1.4em; height:1px;
+    background:var(--accent-dim);
+    display:inline-block;
+  }
+
+  /* ---------- background chart texture ---------- */
+  .chart-ground{
+    position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 82% -10%, rgba(57,189,202,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 40%, rgba(224,138,69,0.06), transparent 55%),
+      var(--bg);
+  }
+  .chart-ground svg{position:absolute; inset:0; width:100%; height:100%; opacity:0.35;}
+
+  /* ---------- nav ---------- */
+  header.site{
+    position:sticky; top:0; z-index:40;
+    background:rgba(10,20,32,0.78);
+    backdrop-filter:blur(10px) saturate(140%);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-block:0.9rem;
+    gap:1rem;
+  }
+  .brand{display:flex; align-items:center; gap:0.65rem; text-decoration:none;}
+  .brand svg{width:30px; height:30px; flex:none;}
+  .brand-word{
+    font-family:var(--font-display); font-weight:600; font-size:1rem;
+    letter-spacing:0.02em; color:var(--text);
+    display:flex; flex-direction:column; line-height:1.05;
+  }
+  .brand-word small{
+    font-family:var(--font-mono); font-weight:400; font-size:0.6rem;
+    letter-spacing:0.24em; color:var(--text-faint);
+  }
+  nav.links{display:flex; align-items:center; gap:clamp(1rem,2.5vw,2.1rem);}
+  nav.links a{
+    font-size:0.88rem; text-decoration:none; color:var(--text-dim);
+    transition:color 0.15s ease;
+  }
+  nav.links a:hover{color:var(--text);}
+  .cta{
+    font-family:var(--font-mono); font-size:0.78rem; letter-spacing:0.03em;
+    text-decoration:none; color:#06121b; background:var(--accent);
+    padding:0.55rem 1.05rem; border-radius:3px; white-space:nowrap;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  .cta:hover{background:#4fd0dc; transform:translateY(-1px);}
+  .cta.ghost{
+    background:transparent; color:var(--text); border:1px solid var(--line-strong);
+  }
+  .cta.ghost:hover{border-color:var(--accent); color:var(--accent); background:var(--accent-soft);}
+
+  @media (max-width:720px){
+    nav.links a:not(.cta){display:none;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding-block:clamp(3.5rem,9vw,6.5rem) clamp(3rem,7vw,5rem);
+    display:grid; grid-template-columns:1.15fr 1fr; gap:clamp(2rem,5vw,4rem);
+    align-items:center;
+  }
+  @media (max-width:900px){ .hero{grid-template-columns:1fr;} }
+
+  .hero h1{
+    font-size:clamp(2.4rem,5.1vw,4.35rem);
+    font-weight:700; letter-spacing:-0.01em; line-height:1.05;
+    margin-block:0.9rem 1.2rem;
+  }
+  .hero h1 em{
+    font-style:normal; color:var(--accent);
+  }
+  .hero .lede{
+    font-size:1.08rem; color:var(--text-dim); max-width:46ch;
+  }
+  .hero .actions{display:flex; flex-wrap:wrap; gap:0.9rem; margin-top:2rem;}
+
+  .hero-art{position:relative; display:flex; justify-content:center;}
+  .hero-art figure{margin:0; display:flex; flex-direction:column; align-items:center; gap:1rem;}
+  .hero-art svg{width:min(360px,80vw); height:auto;}
+  .hero-art figcaption{
+    font-family:var(--font-mono); font-size:0.78rem; color:var(--text-faint);
+    text-align:center; max-width:30ch; line-height:1.55;
+  }
+
+  .rhumb-path{
+    stroke-dasharray:520; stroke-dashoffset:520;
+    animation:draw 1.7s 0.2s cubic-bezier(.65,0,.35,1) forwards;
+  }
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @media (prefers-reduced-motion: reduce){
+    .rhumb-path{animation:none; stroke-dashoffset:0;}
+  }
+
+  /* ---------- section shell ---------- */
+  section{padding-block:clamp(3.5rem,8vw,6rem); border-top:1px solid var(--line);}
+  .section-head{
+    max-width:62ch; margin-bottom:clamp(2rem,4vw,3rem);
+  }
+  .section-head h2{
+    font-size:clamp(1.7rem,3.1vw,2.5rem); font-weight:600; margin-top:0.7rem;
+  }
+  .section-head p{color:var(--text-dim); margin-top:0.9rem; font-size:1.02rem; max-width:56ch;}
+
+
+  /* ---------- product cards ---------- */
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem;}
+  @media (max-width:940px){ .cards{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:8px; padding:1.7rem; display:flex; flex-direction:column; gap:1.1rem;
+    transition:border-color 0.2s ease, transform 0.2s ease;
+  }
+  .card:hover{border-color:var(--line-strong); transform:translateY(-3px);}
+  .card .icon{width:38px; height:38px; color:var(--accent);}
+  .card h3{font-size:1.18rem; font-weight:600; letter-spacing:-0.005em;}
+  .card .desc{color:var(--text-dim); font-size:0.95rem;}
+  .card ul.spec{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.4rem;}
+  .card ul.spec li{
+    font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim);
+    padding-left:1.1em; position:relative;
+  }
+  .card ul.spec li::before{
+    content:"›"; position:absolute; left:0; color:var(--accent-dim);
+  }
+  .badges{display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:auto;}
+  .badge{
+    font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.04em;
+    color:var(--text-dim); border:1px solid var(--line-strong);
+    border-radius:100px; padding:0.28rem 0.6rem;
+  }
+  .card .repo-link{
+    font-family:var(--font-mono); font-size:0.82rem; color:var(--accent);
+    text-decoration:none; display:inline-flex; align-items:center; gap:0.4rem;
+    padding-top:0.3rem; border-top:1px solid var(--line);
+  }
+  .card .repo-link:hover{color:#4fd0dc;}
+  .card .repo-link.pending{color:var(--text-faint); cursor:default;}
+
+  /* ---------- open source / terminal ---------- */
+  .oss-grid{display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:start;}
+  @media (max-width:900px){ .oss-grid{grid-template-columns:1fr;} }
+
+  .terminal{
+    background:#081019; border:1px solid var(--line); border-radius:8px;
+    overflow:hidden;
+  }
+  .terminal .bar{
+    display:flex; align-items:center; gap:0.4rem;
+    padding:0.65rem 0.9rem; border-bottom:1px solid var(--line);
+  }
+  .terminal .bar span{width:9px; height:9px; border-radius:50%; background:var(--line-strong);}
+  .terminal .bar label{
+    margin-left:0.5rem; font-family:var(--font-mono); font-size:0.72rem; color:var(--text-faint);
+  }
+  .terminal pre{
+    margin:0; padding:1.1rem 1.2rem 1.3rem; overflow-x:auto;
+    font-family:var(--font-mono); font-size:0.78rem; line-height:1.85; color:var(--accent);
+  }
+  .terminal pre .dim{color:var(--text-faint);}
+
+  .repo-list{display:flex; flex-direction:column;}
+  .repo-row{
+    display:flex; justify-content:space-between; gap:1rem;
+    padding-block:1.05rem; border-bottom:1px solid var(--line);
+  }
+  .repo-row:first-child{padding-top:0;}
+  .repo-row a{text-decoration:none; font-weight:600; font-size:1rem;}
+  .repo-row a:hover{color:var(--accent);}
+  .repo-row .repo-desc{color:var(--text-dim); font-size:0.88rem; margin-top:0.35rem; max-width:42ch;}
+  .repo-row .repo-meta{
+    font-family:var(--font-mono); font-size:0.72rem; color:var(--text-faint);
+    text-align:right; white-space:nowrap; padding-top:0.15rem;
+  }
+
+  /* ---------- about / log ---------- */
+  .about-grid{display:grid; grid-template-columns:0.9fr 1.1fr; gap:clamp(2rem,5vw,4rem);}
+  @media (max-width:900px){ .about-grid{grid-template-columns:1fr;} }
+  .about-copy p{color:var(--text-dim); font-size:1.02rem;}
+  .about-copy p + p{margin-top:1rem;}
+  .about-copy strong{color:var(--text); font-weight:600;}
+
+  .about-byline{display:flex; align-items:center; gap:1rem; margin-bottom:1.3rem;}
+  .about-photo{
+    width:86px; height:86px; border-radius:12px; overflow:hidden; position:relative;
+    flex:none; border:1px solid var(--line-strong); background:var(--surface);
+  }
+  .about-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .about-byline .who{display:flex; flex-direction:column; gap:0.15rem;}
+  .about-byline .who b{font-family:var(--font-display); font-weight:600; font-size:1.03rem; color:var(--text);}
+  .about-byline .who span{font-family:var(--font-mono); font-size:0.76rem; color:var(--text-dim);}
+
+  .log{list-style:none; margin:0; padding:0; border-top:1px solid var(--line);}
+  .log li{
+    padding-block:1.05rem; border-bottom:1px solid var(--line);
+    display:grid; grid-template-columns:1.1rem 1fr; gap:0.9rem;
+  }
+  .log li::before{
+    content:""; width:7px; height:7px; margin-top:0.5em; border-radius:50%;
+    background:var(--accent);
+  }
+  .log li span{color:var(--text-dim); font-size:0.94rem;}
+  .log li span b{color:var(--text); font-weight:600;}
+
+  /* ---------- contact ---------- */
+  .contact-band{
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:2.5rem;
+  }
+  .contact-band h2{font-size:clamp(1.9rem,3.6vw,3rem); max-width:16ch; font-weight:600;}
+  .contact-links{display:flex; flex-direction:column; gap:0.9rem; min-width:230px;}
+  .contact-links a{
+    text-decoration:none; font-family:var(--font-mono); font-size:0.95rem;
+    display:flex; align-items:center; gap:0.6rem; color:var(--text-dim);
+    padding-block:0.5rem; border-bottom:1px solid var(--line);
+    transition:color 0.15s ease;
+  }
+  .contact-links a:hover{color:var(--accent);}
+  .contact-links .loc{
+    font-family:var(--font-mono); font-size:0.8rem; color:var(--text-faint);
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding-block:2.2rem;
+  }
+  .footer-row{
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;
+  }
+  .footer-row .brand svg{width:22px; height:22px;}
+  .footer-row .brand-word{font-size:0.85rem;}
+  .footer-links{display:flex; gap:1.4rem; font-size:0.82rem; color:var(--text-faint);}
+  .footer-links a{text-decoration:none; color:var(--text-faint);}
+  .footer-links a:hover{color:var(--accent);}
+  .footer-note{
+    width:100%; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-faint);
+    padding-top:1.1rem; margin-top:0.4rem; border-top:1px solid var(--line);
+  }
+</style>
+
+<div class="chart-ground">
+  <svg viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g stroke="#39bdca" stroke-opacity="0.10" fill="none">
+      <line x1="0" y1="90" x2="1200" y2="90"></line>
+      <line x1="0" y1="230" x2="1200" y2="230"></line>
+      <line x1="0" y1="370" x2="1200" y2="370"></line>
+      <line x1="0" y1="510" x2="1200" y2="510"></line>
+      <line x1="0" y1="650" x2="1200" y2="650"></line>
+      <line x1="0" y1="790" x2="1200" y2="790"></line>
+      <line x1="150" y1="0" x2="150" y2="900"></line>
+      <line x1="360" y1="0" x2="360" y2="900"></line>
+      <line x1="570" y1="0" x2="570" y2="900"></line>
+      <line x1="780" y1="0" x2="780" y2="900"></line>
+      <line x1="990" y1="0" x2="990" y2="900"></line>
+    </g>
+  </svg>
+</div>
+
+<header class="site">
+  <div class="wrap nav-row">
+    <a class="brand" href="#top" aria-label="Loxodrome Tech — home">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#0d1a29" stroke="#39bdca" stroke-width="1.4"></circle>
+        <g stroke="#39bdca" stroke-width="1.1" fill="none" opacity="0.65">
+          <ellipse cx="32" cy="32" rx="30" ry="12"></ellipse>
+          <ellipse cx="32" cy="32" rx="30" ry="22"></ellipse>
+          <line x1="32" y1="2" x2="32" y2="62"></line>
+        </g>
+        <path d="M6 44 C 22 14, 42 50, 58 20" stroke="#e08a45" stroke-width="2.6" fill="none" stroke-linecap="round"></path>
+      </svg>
+      <span class="brand-word">LOXODROME<small>TECH</small></span>
+    </a>
+    <nav class="links">
+      <a href="#products">Products</a>
+      <a href="#open-source">Open source</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a class="cta" href="https://github.com/loxodrome-tech" target="_blank" rel="noopener">GitHub ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div>
+      <p class="eyebrow">Marine navigation electronics</p>
+      <h1>Instruments built to hold a <em>bearing.</em></h1>
+      <p class="lede">Loxodrome Tech designs open, field-ready NMEA 0183 hardware — readers, links and buffers — for the navigation systems that keep vessels on course, from the chart table to the engine room.</p>
+      <div class="actions">
+        <a class="cta" href="#products">Explore the hardware</a>
+        <a class="cta ghost" href="https://github.com/loxodrome-tech" target="_blank" rel="noopener">github.com/loxodrome-tech</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <figure>
+        <svg viewBox="0 0 300 300" aria-hidden="true">
+          <circle cx="150" cy="150" r="118" fill="none" stroke="#1c3247" stroke-width="1.3"></circle>
+          <g stroke="#25455c" stroke-width="1" fill="none">
+            <ellipse cx="150" cy="150" rx="118" ry="42"></ellipse>
+            <ellipse cx="150" cy="150" rx="118" ry="80"></ellipse>
+            <ellipse cx="150" cy="150" rx="80" ry="118"></ellipse>
+            <line x1="32" y1="150" x2="268" y2="150"></line>
+            <line x1="150" y1="32" x2="150" y2="268"></line>
+          </g>
+          <path class="rhumb-path" d="M40 210 C 95 90, 160 250, 210 120 S 260 55, 268 40"
+                fill="none" stroke="#39bdca" stroke-width="3" stroke-linecap="round"></path>
+          <circle cx="40" cy="210" r="4.5" fill="#e08a45"></circle>
+          <circle cx="268" cy="40" r="4.5" fill="#e08a45"></circle>
+        </svg>
+        <figcaption>A loxodrome crosses every meridian at the same angle — a constant compass bearing across a curved world. It's also our name.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <section id="products">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Hardware</p>
+        <h2>Three problems, three instruments.</h2>
+        <p>Every board reads or repeats the NMEA 0183 bus that most marine sensors still speak — the differences are where it sits in the chain.</p>
+      </div>
+
+      <div class="cards reveal">
+        <article class="card">
+          <svg class="icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <rect x="8" y="6" width="32" height="36" rx="3" stroke="currentColor" stroke-width="1.6"></rect>
+            <rect x="13" y="12" width="22" height="18" rx="1.5" stroke="currentColor" stroke-width="1.4"></rect>
+            <line x1="20" y1="36" x2="28" y2="36" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+          </svg>
+          <h3>NMEA Reader</h3>
+          <p class="desc">A touchscreen, multi-sensor reader and repeater for NMEA 0183 — choose the board that fits the panel.</p>
+          <ul class="spec">
+            <li>STM32F407VET6 + ILI9341 touch display</li>
+            <li>ESP32 + ST7789 TFT, auto baud-rate detection</li>
+          </ul>
+          <div class="badges">
+            <span class="badge">NMEA 0183</span>
+            <span class="badge">STM32</span>
+            <span class="badge">ESP32</span>
+            <span class="badge">Touch UI</span>
+          </div>
+          <a class="repo-link" href="https://github.com/loxodrome-tech/nmea-reader-stm32" target="_blank" rel="noopener">View nmea-reader-stm32 ↗</a>
+          <a class="repo-link" href="https://github.com/loxodrome-tech/nmea-reader-esp32-tft" target="_blank" rel="noopener">View nmea-reader-esp32-tft ↗</a>
+        </article>
+
+        <article class="card">
+          <svg class="icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <rect x="5" y="14" width="38" height="20" rx="3" stroke="currentColor" stroke-width="1.6"></rect>
+            <path d="M10 24 l5 -6 l4 10 l4 -14 l4 8 l4 -4 l7 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <h3>NMEA Link</h3>
+          <p class="desc">A monitor and sentence generator for NMEA 0183 diagnostics — watch the bus, or simulate it on the bench.</p>
+          <ul class="spec">
+            <li>Live sentence monitor</li>
+            <li>Configurable sentence generator</li>
+          </ul>
+          <div class="badges">
+            <span class="badge">NMEA 0183</span>
+            <span class="badge">Diagnostics</span>
+            <span class="badge">Bench tool</span>
+          </div>
+          <span class="repo-link pending">Product line — repository in progress</span>
+        </article>
+
+        <article class="card">
+          <svg class="icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <rect x="9" y="9" width="30" height="30" rx="3" stroke="currentColor" stroke-width="1.6"></rect>
+            <line x1="16" y1="18" x2="32" y2="18" stroke="currentColor" stroke-width="1.5"></line>
+            <line x1="16" y1="24" x2="32" y2="24" stroke="currentColor" stroke-width="1.5"></line>
+            <line x1="16" y1="30" x2="24" y2="30" stroke="currentColor" stroke-width="1.5"></line>
+            <line x1="24" y1="30" x2="24" y2="39" stroke="currentColor" stroke-width="1.5"></line>
+            <line x1="32" y1="30" x2="32" y2="39" stroke="currentColor" stroke-width="1.5"></line>
+          </svg>
+          <h3>NMEA Buffer</h3>
+          <p class="desc">A DIN-rail RS-422 buffer and splitter that isolates a navigation bus and repeats it to several listeners.</p>
+          <ul class="spec">
+            <li>RS-422 opto-isolated buffer</li>
+            <li>DIN-rail mount, panel-ready</li>
+          </ul>
+          <div class="badges">
+            <span class="badge">RS-422</span>
+            <span class="badge">DIN rail</span>
+            <span class="badge">Isolation</span>
+          </div>
+          <span class="repo-link pending">Product line — repository in progress</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="open-source">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <p class="eyebrow">Open hardware</p>
+        <h2>Built in the open.</h2>
+        <p>Firmware and hardware notes for the reader boards are public — inspect it, flash it, fork it for your own panel.</p>
+      </div>
+
+      <div class="oss-grid reveal">
+        <div class="terminal">
+          <div class="bar"><span></span><span></span><span></span><label>NMEA 0183 — sample output</label></div>
+          <pre><span class="dim">$</span> nmea-reader --listen /dev/ttyUSB0
+$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
+$GPRMC,123519,A,4807.038,N,01131.000,E,022.4,084.4,230394,003.1,W*6A
+$GPVTG,084.4,T,077.5,M,022.4,N,041.5,K*4C
+<span class="dim">$</span> baud-rate: auto → 4800  checksum: ok</pre>
+        </div>
+
+        <div class="repo-list">
+          <div class="repo-row">
+            <div>
+              <a href="https://github.com/loxodrome-tech/nmea-reader-stm32" target="_blank" rel="noopener">nmea-reader-stm32 ↗</a>
+              <p class="repo-desc">Multi-sensor NMEA 0183 reader/repeater on STM32F407VET6 with an ILI9341 touch panel.</p>
+            </div>
+            <div class="repo-meta">updated<br>30 Aug 2026</div>
+          </div>
+          <div class="repo-row">
+            <div>
+              <a href="https://github.com/loxodrome-tech/nmea-reader-esp32-tft" target="_blank" rel="noopener">nmea-reader-esp32-tft ↗</a>
+              <p class="repo-desc">NMEA 0183 sensor monitor on ESP32 with an ST7789 TFT and automatic baud-rate detection.</p>
+            </div>
+            <div class="repo-meta">MIT license<br>21 Aug 2026</div>
+          </div>
+          <div class="repo-row">
+            <div>
+              <a href="https://github.com/loxodrome-tech/.github" target="_blank" rel="noopener">.github ↗</a>
+              <p class="repo-desc">Organization profile and public documentation for Loxodrome Tech.</p>
+            </div>
+            <div class="repo-meta">org profile</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap about-grid">
+      <div class="reveal">
+        <div class="about-byline">
+          <span class="about-photo"><img src="data:image/jpeg;base64,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" alt="Matías Scuppa, founder of Loxodrome Tech"></span>
+          <span class="who"><b>Matías Scuppa</b><span>Founder &amp; Electronic Engineer</span></span>
+        </div>
+        <p class="eyebrow">Who's behind it</p>
+        <h2 style="font-size:clamp(1.7rem,3.1vw,2.5rem); font-weight:600; margin-top:0.7rem;">Built by someone who reads the bus for a living.</h2>
+        <div class="about-copy" style="margin-top:1.3rem;">
+          <p>Loxodrome Tech is run by <strong>Matías Scuppa</strong>, an electronic engineer with over a decade in naval electronics and technical project management — the kind of hands-on experience that comes from keeping real navigation systems running on real vessels.</p>
+          <p>Every board is designed the way a technician wants to find it in a panel: documented, repairable, and honest about what it does.</p>
+        </div>
+      </div>
+
+      <ul class="log reveal">
+        <li><span><b>Electronic Engineer</b> — 10+ years across naval electronics and technical project management.</span></li>
+        <li><span><b>Systems</b> — radar, GPS, AIS, ECDIS, gyrocompasses, VDR, VSAT, anemometers, compasses.</span></li>
+        <li><span><b>Hardware worked on</b> — Sperry Marine, Furuno, SAAB, Raytheon Marine, Garmin, Wärtsilä, Terma, NACOS Marine.</span></li>
+        <li><span><b>Previously</b> — led the Radar &amp; Navigation Systems Section at the Naval Arsenal of Mar del Plata, Argentine Navy.</span></li>
+        <li><span><b>Based in</b> — the south of France, on the Mediterranean coast.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-band reveal">
+        <h2>Have a bus that needs reading?</h2>
+        <div class="contact-links">
+          <a href="mailto:contact@loxodrome.tech">✉ contact@loxodrome.tech</a>
+          <a href="https://github.com/loxodrome-tech" target="_blank" rel="noopener">↗ github.com/loxodrome-tech</a>
+          <a href="https://www.linkedin.com/in/matias-scuppa/" target="_blank" rel="noopener">↗ linkedin.com/in/matias-scuppa</a>
+          <span class="loc">South of France · Mediterranean coast</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <a class="brand" href="#top" aria-label="Loxodrome Tech — home">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#0d1a29" stroke="#39bdca" stroke-width="1.4"></circle>
+        <g stroke="#39bdca" stroke-width="1.1" fill="none" opacity="0.65">
+          <ellipse cx="32" cy="32" rx="30" ry="12"></ellipse>
+          <line x1="32" y1="2" x2="32" y2="62"></line>
+        </g>
+        <path d="M6 44 C 22 14, 42 50, 58 20" stroke="#e08a45" stroke-width="2.6" fill="none" stroke-linecap="round"></path>
+      </svg>
+      <span class="brand-word">LOXODROME<small>TECH</small></span>
+    </a>
+    <div class="footer-links">
+      <a href="#products">Products</a>
+      <a href="https://github.com/loxodrome-tech" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/matias-scuppa/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <p class="footer-note">© 2026 Loxodrome Tech — field-ready navigation electronics. Stay on course, build beyond.</p>
+  </div>
+</footer>
