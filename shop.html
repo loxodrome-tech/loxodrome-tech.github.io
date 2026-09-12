@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop — Loxodrome Tech</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#0a1420; --bg-raise:#0d1a29; --surface:#101f31; --surface-hi:#152f45;
+    --line:rgba(237,234,225,0.09); --line-strong:rgba(237,234,225,0.16);
+    --text:#edeae1; --text-dim:#93a2b4; --text-faint:#5c6b7c;
+    --accent:#39bdca; --accent-dim:#2a8f99; --accent-soft:rgba(57,189,202,0.12); --accent-2:#e08a45;
+    --font-display:'Unbounded','Arial Black',sans-serif;
+    --font-body:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.6;}
+  h1,h2,h3{font-family:var(--font-display); margin:0; text-wrap:balance;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+
+  .demo-banner{
+    background:var(--accent-2); color:#1a0f04; font-family:var(--font-mono); font-size:0.8rem;
+    text-align:center; padding:0.55rem 1rem;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding-inline:clamp(1.25rem,4vw,3rem);}
+  main{padding-block:clamp(2.5rem,6vw,4.5rem);}
+  .back{font-family:var(--font-mono); font-size:0.8rem; color:var(--text-faint); display:inline-block; margin-bottom:1.6rem;}
+  .back:hover{color:var(--accent);}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:0.6em; margin-bottom:0.7rem;
+  }
+  .eyebrow::before{content:""; width:1.4em; height:1px; background:var(--accent-dim); display:inline-block;}
+  h2.title{font-size:clamp(1.8rem,3.4vw,2.5rem); font-weight:600;}
+  .lede{color:var(--text-dim); font-size:1rem; max-width:64ch; margin-top:0.8rem;}
+
+  /* ---- demo cards (shown until a real Shopify store is wired in) ---- */
+  .cards{display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; margin-top:2.4rem;}
+  @media (max-width:900px){ .cards{grid-template-columns:1fr 1fr;} }
+  @media (max-width:620px){ .cards{grid-template-columns:1fr;} }
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:1.4rem;
+    display:flex; flex-direction:column; gap:0.7rem;
+  }
+  .card .icon{width:40px; height:40px; color:var(--accent);}
+  .status-tag{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.03em; align-self:flex-start;
+    border-radius:100px; padding:0.32rem 0.75rem; display:inline-flex; align-items:center; gap:0.4em;
+    border:1px solid transparent;
+  }
+  .status-tag::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor;}
+  .status-tag.ok{color:var(--accent); background:var(--accent-soft); border-color:rgba(57,189,202,0.28);}
+  .status-tag.untested{color:var(--accent-2); background:rgba(224,138,69,0.12); border-color:rgba(224,138,69,0.28);}
+  .card h3{font-size:1.05rem;}
+  .card .desc{color:var(--text-dim); font-size:0.88rem;}
+  .card .price{font-family:var(--font-mono); color:var(--text); font-size:0.95rem; margin-top:0.2rem;}
+  .card .price.tbd{color:var(--text-faint);}
+
+  .setup-note{
+    margin-top:2.6rem; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:1.4rem 1.6rem; font-size:0.88rem; color:var(--text-dim);
+  }
+  .setup-note b{color:var(--text);}
+
+  /* ---- real Shopify catalog mount point ---- */
+  #shopify-catalog{margin-top:2.4rem;}
+</style>
+</head>
+<body>
+
+<div class="demo-banner" id="demo-banner">Demo mode — this store isn't connected to Shopify yet, showing sample listings.</div>
+
+<main class="wrap">
+  <a class="back" href="index.html#salvage">← Back to loxodrome-tech.github.io</a>
+  <p class="eyebrow">Shop</p>
+  <h2 class="title">Recovered hardware, ready to go.</h2>
+  <p class="lede">Marine electronics salvaged from decommissioned vessels, cleaned up and checked over. Every listing says exactly what you're getting: bench-tested and confirmed working, or sold as-is, untested.</p>
+
+  <div id="demo-catalog" class="cards">
+    <article class="card">
+      <svg class="icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="7" y="10" width="34" height="24" rx="3" stroke="currentColor" stroke-width="1.6"></rect>
+        <circle cx="24" cy="22" r="6" stroke="currentColor" stroke-width="1.5"></circle>
+        <line x1="24" y1="34" x2="24" y2="40" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+        <line x1="16" y1="40" x2="32" y2="40" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></line>
+      </svg>
+      <span class="status-tag ok">Tested &amp; working</span>
+      <h3>GPS / chartplotter unit</h3>
+      <p class="desc">Recovered navigation display, bench-tested and confirmed powering up and reading position.</p>
+      <p class="price tbd">Price on request</p>
+    </article>
+
+    <article class="card">
+      <svg class="icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M24 6 L40 15 V33 L24 42 L8 33 V15 Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+        <path d="M24 16 v10 M24 30 v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+      </svg>
+      <span class="status-tag untested">Untested — as-is</span>
+      <h3>VHF radio set</h3>
+      <p class="desc">Pulled from a decommissioned vessel, not yet bench-tested. Sold as-is for parts or repair.</p>
+      <p class="price tbd">Price on request</p>
+    </article>
+
+    <article class="card">
+      <svg class="icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="10" y="8" width="28" height="32" rx="3" stroke="currentColor" stroke-width="1.6"></rect>
+        <line x1="16" y1="17" x2="32" y2="17" stroke="currentColor" stroke-width="1.5"></line>
+        <line x1="16" y1="23" x2="32" y2="23" stroke="currentColor" stroke-width="1.5"></line>
+        <line x1="16" y1="29" x2="26" y2="29" stroke="currentColor" stroke-width="1.5"></line>
+      </svg>
+      <span class="status-tag ok">Tested &amp; working</span>
+      <h3>Instrument display</h3>
+      <p class="desc">Repaired and re-tested analog/digital instrument head. Fully functional.</p>
+      <p class="price tbd">Price on request</p>
+    </article>
+  </div>
+
+  <div id="shopify-catalog"></div>
+
+  <div class="setup-note" id="setup-note">
+    <b>For Matías:</b> this page is wired for Shopify's Buy Button, waiting on three values below. Once you've created your Shopify store and a "Salvage" collection, replace them in this file's &lt;script&gt; and the real catalog (with working checkout) replaces the sample cards above automatically — nothing else to change.
+  </div>
+</main>
+
+<script src="https://sdks.shopifycdn.com/buy-button/latest/buybutton.js"></script>
+<script>
+  // TODO: fill these in once your Shopify store exists — see SETUP_SHOPIFY.md for exactly where to find each one.
+  const SHOPIFY_DOMAIN = "REPLACE_WITH_SHOP.myshopify.com";
+  const SHOPIFY_STOREFRONT_TOKEN = "REPLACE_WITH_STOREFRONT_TOKEN";
+  const SHOPIFY_COLLECTION_ID = "REPLACE_WITH_COLLECTION_ID";
+  const DEMO_MODE = SHOPIFY_DOMAIN.startsWith("REPLACE_");
+
+  if (!DEMO_MODE) {
+    document.getElementById("demo-banner").style.display = "none";
+    document.getElementById("demo-catalog").style.display = "none";
+    document.getElementById("setup-note").style.display = "none";
+
+    const client = ShopifyBuy.buildClient({
+      domain: SHOPIFY_DOMAIN,
+      storefrontAccessToken: SHOPIFY_STOREFRONT_TOKEN
+    });
+    const ui = ShopifyBuy.UI.init(client);
+
+    ui.createComponent("collection", {
+      id: SHOPIFY_COLLECTION_ID,
+      node: document.getElementById("shopify-catalog"),
+      options: {
+        product: {
+          styles: {
+            product: {
+              "text-align": "left",
+              "@media (min-width: 601px)": { "max-width": "calc(33.33% - 20px)", "margin-left": "0", "margin-bottom": "24px" }
+            },
+            title: { "font-family": "'Unbounded', sans-serif", "color": "#edeae1", "font-size": "17px" },
+            button: {
+              "background-color": "#39bdca", "color": "#06121b", ":hover": { "background-color": "#4fd0dc" },
+              "border-radius": "6px", "font-family": "'IBM Plex Mono', monospace", "font-weight": "600"
+            },
+            price: { "color": "#93a2b4", "font-family": "'IBM Plex Mono', monospace" }
+          },
+          buttonDestination: "modal",
+          contents: { options: false }
+        },
+        productSet: { styles: { products: { "@media (min-width: 601px)": { "margin-left": "-20px" } } } },
+        modalProduct: {
+          styles: {
+            product: { "@media (min-width: 601px)": { "max-width": "100%" } },
+            button: { "background-color": "#39bdca", "color": "#06121b", ":hover": { "background-color": "#4fd0dc" }, "border-radius": "6px" }
+          }
+        },
+        cart: {
+          styles: { button: { "background-color": "#39bdca", "color": "#06121b", ":hover": { "background-color": "#4fd0dc" }, "border-radius": "6px" } }
+        },
+        toggle: { styles: { toggle: { "background-color": "#39bdca" } } }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
