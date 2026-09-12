@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff console — Loxodrome Tech</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#0a1420; --bg-raise:#0d1a29; --surface:#101f31; --surface-hi:#152f45;
+    --line:rgba(237,234,225,0.09); --line-strong:rgba(237,234,225,0.16);
+    --text:#edeae1; --text-dim:#93a2b4; --text-faint:#5c6b7c;
+    --accent:#39bdca; --accent-dim:#2a8f99; --accent-soft:rgba(57,189,202,0.12); --accent-2:#e08a45;
+    --font-display:'Unbounded','Arial Black',sans-serif;
+    --font-body:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.6;}
+  h1,h2,h3{font-family:var(--font-display); margin:0; text-wrap:balance;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+
+  .demo-banner{
+    background:var(--accent-2); color:#1a0f04; font-family:var(--font-mono); font-size:0.8rem;
+    text-align:center; padding:0.55rem 1rem;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding-inline:clamp(1.25rem,4vw,3rem);}
+  main{padding-block:clamp(2rem,5vw,3.5rem);}
+  .back{font-family:var(--font-mono); font-size:0.8rem; color:var(--text-faint); display:inline-block; margin-bottom:1.4rem;}
+  .back:hover{color:var(--accent);}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:0.6em; margin-bottom:0.7rem;
+  }
+  .eyebrow::before{content:""; width:1.4em; height:1px; background:var(--accent-dim); display:inline-block;}
+  h2.title{font-size:clamp(1.6rem,3vw,2.2rem); font-weight:600;}
+
+  /* ---- login ---- */
+  .login-shell{
+    max-width:420px; margin:3rem auto 0; background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; padding:clamp(1.4rem,3vw,2rem);
+  }
+  .field{display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1rem;}
+  .field label{font-family:var(--font-mono); font-size:0.76rem; color:var(--text-dim);}
+  .field input{
+    background:var(--bg-raise); border:1px solid var(--line-strong); border-radius:6px;
+    color:var(--text); font-family:var(--font-body); font-size:0.95rem; padding:0.65rem 0.8rem;
+  }
+  .field input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .btn{
+    background:var(--accent); color:#06121b; border:none; border-radius:6px;
+    font-family:var(--font-mono); font-size:0.86rem; font-weight:600; letter-spacing:0.02em;
+    padding:0.8rem 1.4rem; cursor:pointer; width:100%;
+  }
+  .btn:hover{background:#4fd0dc;}
+  .btn:disabled{opacity:0.6; cursor:default;}
+  .error-note{font-family:var(--font-mono); font-size:0.78rem; color:var(--accent-2); margin-top:0.9rem; display:none;}
+  .error-note.show{display:block;}
+
+  /* ---- dashboard ---- */
+  #dashboard{display:none;}
+  #dashboard.show{display:block;}
+  .top-bar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;}
+  .who{font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim);}
+  .who b{color:var(--text);}
+  .signout{font-family:var(--font-mono); font-size:0.78rem; color:var(--text-faint); border:1px solid var(--line-strong); border-radius:6px; padding:0.5rem 0.9rem; background:transparent; cursor:pointer;}
+  .signout:hover{color:var(--accent); border-color:var(--accent);}
+
+  .metrics-row{display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; margin-top:1.6rem;}
+  @media (max-width:820px){ .metrics-row{grid-template-columns:1fr 1fr;} }
+  .metric{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:1.1rem 1.2rem;}
+  .metric .n{font-family:var(--font-display); font-size:1.7rem; font-weight:600; color:var(--text);}
+  .metric .n.accent{color:var(--accent);}
+  .metric .l{font-family:var(--font-mono); font-size:0.7rem; color:var(--text-faint); margin-top:0.3rem; text-transform:uppercase; letter-spacing:0.03em;}
+
+  .console{margin-top:2rem; background:var(--surface); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .console-tabs{display:flex; gap:0.3rem; padding:0.8rem 1.3rem 0; border-bottom:1px solid var(--line);}
+  .console-tab{
+    font-family:var(--font-mono); font-size:0.8rem; padding:0.6rem 1rem; color:var(--text-dim);
+    border-bottom:2px solid transparent; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none;
+  }
+  .console-tab.active{color:var(--accent); border-color:var(--accent);}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    text-align:left; font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--text-faint); padding:0.9rem 1.3rem; border-bottom:1px solid var(--line); white-space:nowrap;
+  }
+  tbody td{padding:0.9rem 1.3rem; border-bottom:1px solid var(--line); font-size:0.88rem; white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody td.mono{font-family:var(--font-mono); font-size:0.82rem; color:var(--text-dim);}
+  tbody td.wrap-cell{white-space:normal; max-width:280px;}
+  select.status-select{
+    background:var(--bg-raise); border:1px solid var(--line-strong); border-radius:100px;
+    color:var(--text); font-family:var(--font-mono); font-size:0.72rem; padding:0.32rem 0.6rem;
+  }
+  .table-note{padding:0.9rem 1.3rem; font-family:var(--font-mono); font-size:0.74rem; color:var(--text-faint); border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+
+<div class="demo-banner" id="demo-banner" style="display:none;">Demo mode — backend not connected yet, showing sample data. Sign-in and edits are disabled.</div>
+
+<main class="wrap">
+  <a class="back" href="index.html">← Back to loxodrome-tech.github.io</a>
+
+  <div id="login-screen">
+    <p class="eyebrow">Staff console</p>
+    <h2 class="title">Sign in.</h2>
+    <div class="login-shell">
+      <form id="login-form">
+        <div class="field"><label>Email</label><input id="l-email" type="email" required></div>
+        <div class="field"><label>Password</label><input id="l-password" type="password" required></div>
+        <button class="btn" type="submit" id="l-submit">Sign in</button>
+        <p class="error-note" id="l-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="dashboard">
+    <div class="top-bar">
+      <div>
+        <p class="eyebrow">Staff console</p>
+        <h2 class="title">Service &amp; RMA overview.</h2>
+      </div>
+      <div style="text-align:right;">
+        <p class="who">Signed in as <b id="who-email">—</b></p>
+        <button class="signout" id="signout-btn" style="margin-top:0.5rem;">Sign out</button>
+      </div>
+    </div>
+
+    <div class="metrics-row" id="metrics-row">
+      <div class="metric"><div class="n" id="m-open">—</div><div class="l">Open tickets</div></div>
+      <div class="metric"><div class="n" id="m-week">—</div><div class="l">This week</div></div>
+      <div class="metric"><div class="n" id="m-pending">—</div><div class="l">Quotes pending</div></div>
+      <div class="metric"><div class="n accent" id="m-accepted">—</div><div class="l">Quotes accepted</div></div>
+      <div class="metric"><div class="n accent" id="m-revenue">—</div><div class="l">Revenue</div></div>
+    </div>
+
+    <div class="console">
+      <div class="console-tabs">
+        <button class="console-tab active" data-tab="tickets">Tickets (RMA)</button>
+        <button class="console-tab" data-tab="quotes">Quotes</button>
+      </div>
+
+      <div class="table-wrap" id="tickets-panel">
+        <table>
+          <thead><tr><th>Ticket</th><th>Customer</th><th>Product</th><th>Issue</th><th>Status</th><th>Priority</th><th>Received</th></tr></thead>
+          <tbody id="tickets-body"><tr><td colspan="7" class="mono">Loading…</td></tr></tbody>
+        </table>
+        <p class="table-note">Changing status updates the record immediately — the customer sees this on the Track page.</p>
+      </div>
+
+      <div class="table-wrap" id="quotes-panel" style="display:none;">
+        <table>
+          <thead><tr><th>Quote</th><th>Customer</th><th>Type</th><th>Description</th><th>Status</th><th>Amount</th><th>Requested</th></tr></thead>
+          <tbody id="quotes-body"><tr><td colspan="7" class="mono">Loading…</td></tr></tbody>
+        </table>
+        <p class="table-note">Marking a quote "Accepted" counts as a sale and triggers the ntfy notification.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // TODO: replace with the real values once the homelab Supabase stack is up (same pair used in track.html).
+  const SUPABASE_URL = "REPLACE_WITH_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "REPLACE_WITH_ANON_KEY";
+  const DEMO_MODE = SUPABASE_URL.startsWith("REPLACE_");
+
+  const TICKET_STATUSES = ["new","received","diagnosing","awaiting_customer","repairing","ready","shipped","closed","cancelled"];
+  const QUOTE_STATUSES = ["requested","quoted","accepted","declined","expired"];
+
+  const DEMO_TICKETS = [
+    {ticket_number:"RMA-2026-0006", customers:{full_name:"J. Dupont"}, product:"NMEA Link", issue_description:"No power on 12V input, LED doesn't light.", status:"new", priority:"normal", created_at:"2026-09-03"},
+    {ticket_number:"RMA-2026-0005", customers:{full_name:"C. Berthier"}, product:"NMEA Reader ESP32-TFT", issue_description:"Screen flickers intermittently.", status:"diagnosing", priority:"high", created_at:"2026-09-01"},
+    {ticket_number:"RMA-2026-0004", customers:{full_name:"Voilerie du Cap"}, product:"NMEA Buffer", issue_description:"One output port dead after lightning nearby.", status:"repairing", priority:"normal", created_at:"2026-08-29"},
+    {ticket_number:"RMA-2026-0003", customers:{full_name:"M. Álvarez"}, product:"VHF (third-party)", issue_description:"No audio out, suspect blown speaker driver.", status:"shipped", priority:"low", created_at:"2026-08-22"},
+    {ticket_number:"RMA-2026-0002", customers:{full_name:"R. Nguyen"}, product:"NMEA Link", issue_description:"Firmware update bricked the unit.", status:"closed", priority:"normal", created_at:"2026-08-14"}
+  ];
+  const DEMO_QUOTES = [
+    {quote_number:"QT-2026-0003", customers:{full_name:"Chantier Naval Ouest"}, service_type:"Bulk refurbishment", description:"12 recovered GPS units to test and refurbish.", status:"requested", quoted_amount:null, currency:"EUR", created_at:"2026-09-04"},
+    {quote_number:"QT-2026-0002", customers:{full_name:"S. Moreau"}, service_type:"Custom hardware design", description:"Custom NMEA-to-CAN bridge, small batch of 5.", status:"quoted", quoted_amount:1450, currency:"EUR", created_at:"2026-08-30"},
+    {quote_number:"QT-2026-0001", customers:{full_name:"Themys Bridge Retrofit"}, service_type:"Integration work", description:"Multicast tap into existing NACOS Marine switch.", status:"accepted", quoted_amount:2200, currency:"EUR", created_at:"2026-08-20"}
+  ];
+  const DEMO_METRICS = {open_tickets:4, tickets_this_week:2, quotes_pending:1, quotes_accepted:1, accepted_revenue:2200};
+
+  const client = DEMO_MODE ? null : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  function statusOptions(list, current){
+    return list.map(s => `<option value="${s}" ${s===current?"selected":""}>${s.replace(/_/g," ")}</option>`).join("");
+  }
+
+  function renderMetrics(m){
+    document.getElementById("m-open").textContent = m.open_tickets ?? "—";
+    document.getElementById("m-week").textContent = m.tickets_this_week ?? "—";
+    document.getElementById("m-pending").textContent = m.quotes_pending ?? "—";
+    document.getElementById("m-accepted").textContent = m.quotes_accepted ?? "—";
+    document.getElementById("m-revenue").textContent = m.accepted_revenue != null ? ("€" + Number(m.accepted_revenue).toLocaleString()) : "—";
+  }
+
+  function renderTickets(rows){
+    document.getElementById("tickets-body").innerHTML = rows.map(t => `
+      <tr data-id="${t.id ?? ""}">
+        <td class="mono">${t.ticket_number}</td>
+        <td>${t.customers?.full_name ?? "—"}</td>
+        <td>${t.product}</td>
+        <td class="wrap-cell">${t.issue_description}</td>
+        <td><select class="status-select" data-kind="ticket" data-id="${t.id ?? ""}" ${DEMO_MODE?"disabled":""}>${statusOptions(TICKET_STATUSES, t.status)}</select></td>
+        <td>${t.priority}</td>
+        <td class="mono">${new Date(t.created_at).toLocaleDateString()}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderQuotes(rows){
+    document.getElementById("quotes-body").innerHTML = rows.map(q => `
+      <tr data-id="${q.id ?? ""}">
+        <td class="mono">${q.quote_number}</td>
+        <td>${q.customers?.full_name ?? "—"}</td>
+        <td>${q.service_type}</td>
+        <td class="wrap-cell">${q.description}</td>
+        <td><select class="status-select" data-kind="quote" data-id="${q.id ?? ""}" ${DEMO_MODE?"disabled":""}>${statusOptions(QUOTE_STATUSES, q.status)}</select></td>
+        <td class="mono">${q.quoted_amount != null ? (q.quoted_amount + " " + q.currency) : "—"}</td>
+        <td class="mono">${new Date(q.created_at).toLocaleDateString()}</td>
+      </tr>
+    `).join("");
+  }
+
+  async function loadDashboard(){
+    if (DEMO_MODE){
+      renderMetrics(DEMO_METRICS);
+      renderTickets(DEMO_TICKETS);
+      renderQuotes(DEMO_QUOTES);
+      return;
+    }
+    const [{data: metrics}, {data: tickets}, {data: quotes}] = await Promise.all([
+      client.from("staff_metrics").select("*").single(),
+      client.from("service_tickets").select("id,ticket_number,product,issue_description,status,priority,created_at,customers(full_name)").order("created_at", {ascending:false}),
+      client.from("quotes").select("id,quote_number,service_type,description,status,quoted_amount,currency,created_at,customers(full_name)").order("created_at", {ascending:false})
+    ]);
+    renderMetrics(metrics || {});
+    renderTickets(tickets || []);
+    renderQuotes(quotes || []);
+  }
+
+  document.getElementById("dashboard").addEventListener("change", async (e) => {
+    if (!e.target.classList.contains("status-select") || DEMO_MODE) return;
+    const kind = e.target.dataset.kind;
+    const id = e.target.dataset.id;
+    const table = kind === "ticket" ? "service_tickets" : "quotes";
+    const { error } = await client.from(table).update({status: e.target.value}).eq("id", id);
+    if (error) alert("Couldn't update status: " + error.message);
+    else loadDashboard();
+  });
+
+  document.querySelectorAll(".console-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".console-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("tickets-panel").style.display = tab.dataset.tab === "tickets" ? "" : "none";
+      document.getElementById("quotes-panel").style.display = tab.dataset.tab === "quotes" ? "" : "none";
+    });
+  });
+
+  function showDashboard(email){
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("dashboard").classList.add("show");
+    document.getElementById("who-email").textContent = email || "demo";
+    loadDashboard();
+  }
+
+  document.getElementById("signout-btn").addEventListener("click", async () => {
+    if (!DEMO_MODE) await client.auth.signOut();
+    location.reload();
+  });
+
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById("l-submit");
+    const errorNote = document.getElementById("l-error");
+    errorNote.classList.remove("show");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Signing in…";
+    const email = document.getElementById("l-email").value.trim();
+    const password = document.getElementById("l-password").value;
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    if (error){
+      errorNote.textContent = error.message;
+      errorNote.classList.add("show");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign in";
+      return;
+    }
+    showDashboard(data.user?.email);
+  });
+
+  (async function init(){
+    if (DEMO_MODE){
+      document.getElementById("demo-banner").style.display = "block";
+      showDashboard("demo@loxodrome.tech");
+      return;
+    }
+    const { data: { session } } = await client.auth.getSession();
+    if (session) showDashboard(session.user.email);
+  })();
+</script>
+
+</body>
+</html>
