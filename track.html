@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track your request — Loxodrome Tech</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#0a1420; --bg-raise:#0d1a29; --surface:#101f31; --surface-hi:#152f45;
+    --line:rgba(237,234,225,0.09); --line-strong:rgba(237,234,225,0.16);
+    --text:#edeae1; --text-dim:#93a2b4; --text-faint:#5c6b7c;
+    --accent:#39bdca; --accent-dim:#2a8f99; --accent-soft:rgba(57,189,202,0.12); --accent-2:#e08a45;
+    --font-display:'Unbounded','Arial Black',sans-serif;
+    --font-body:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.6;}
+  h1,h2,h3{font-family:var(--font-display); margin:0; text-wrap:balance;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+
+  .demo-banner{
+    background:var(--accent-2); color:#1a0f04; font-family:var(--font-mono); font-size:0.8rem;
+    text-align:center; padding:0.55rem 1rem;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding-inline:clamp(1.25rem,4vw,3rem);}
+  main{padding-block:clamp(3rem,7vw,5rem);}
+  .back{font-family:var(--font-mono); font-size:0.8rem; color:var(--text-faint); display:inline-block; margin-bottom:1.6rem;}
+  .back:hover{color:var(--accent);}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:0.6em; margin-bottom:0.7rem;
+  }
+  .eyebrow::before{content:""; width:1.4em; height:1px; background:var(--accent-dim); display:inline-block;}
+  h2.title{font-size:clamp(1.8rem,3.4vw,2.5rem); font-weight:600;}
+  .lede{color:var(--text-dim); font-size:1rem; max-width:56ch; margin-top:0.8rem;}
+
+  .form-shell{
+    margin-top:2rem; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:clamp(1.4rem,3vw,2rem);
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+  @media (max-width:520px){ .grid2{grid-template-columns:1fr;} }
+  .field{display:flex; flex-direction:column; gap:0.4rem;}
+  .field label{font-family:var(--font-mono); font-size:0.76rem; color:var(--text-dim);}
+  .field input{
+    background:var(--bg-raise); border:1px solid var(--line-strong); border-radius:6px;
+    color:var(--text); font-family:var(--font-body); font-size:0.95rem; padding:0.65rem 0.8rem;
+  }
+  .field input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .btn{
+    margin-top:1.2rem; background:var(--accent); color:#06121b; border:none; border-radius:6px;
+    font-family:var(--font-mono); font-size:0.86rem; font-weight:600; letter-spacing:0.02em;
+    padding:0.8rem 1.4rem; cursor:pointer;
+  }
+  .btn:hover{background:#4fd0dc;}
+  .form-note{font-family:var(--font-mono); font-size:0.72rem; color:var(--text-faint); margin-top:0.9rem;}
+
+  .result{margin-top:2rem; display:none;}
+  .result.show{display:block;}
+  .result-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px 10px 0 0; padding:1.4rem 1.6rem;
+  }
+  .result-head .num{font-family:var(--font-mono); font-size:1.15rem; color:var(--accent); font-weight:600;}
+  .result-head .product{color:var(--text-dim); font-size:0.9rem; margin-top:0.3rem;}
+  .status-tag{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.03em;
+    border-radius:100px; padding:0.32rem 0.75rem; display:inline-flex; align-items:center; gap:0.4em;
+    border:1px solid transparent; color:var(--accent); background:var(--accent-soft); border-color:rgba(57,189,202,0.28);
+  }
+  .status-tag::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  .stepper{
+    background:var(--bg-raise); border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px;
+    padding:1.6rem; display:flex; gap:0.4rem;
+  }
+  @media (max-width:520px){ .stepper{flex-direction:column; gap:0.9rem;} }
+  .step{flex:1; display:flex; flex-direction:column; gap:0.5rem; align-items:flex-start;}
+  @media (max-width:520px){ .step{flex-direction:row; align-items:center; gap:0.7rem;} }
+  .step .dot{width:9px; height:9px; border-radius:50%; background:var(--line-strong);}
+  .step.done .dot{background:var(--accent);}
+  .step .bar{height:2px; width:100%; background:var(--line-strong); margin-top:-4px;}
+  @media (max-width:520px){ .step .bar{display:none;} }
+  .step.done .bar{background:var(--accent);}
+  .step:last-child .bar{display:none;}
+  .step span{font-family:var(--font-mono); font-size:0.7rem; color:var(--text-faint);}
+  .step.done span{color:var(--text-dim);}
+
+  .not-found{
+    margin-top:2rem; background:rgba(224,138,69,0.1); border:1px solid rgba(224,138,69,0.28);
+    border-radius:10px; padding:1.2rem 1.5rem; font-size:0.92rem; color:var(--text-dim); display:none;
+  }
+  .not-found.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo mode — backend not connected yet, showing a sample result for any input.</div>
+
+<main class="wrap">
+  <a class="back" href="index.html#salvage">← Back to loxodrome-tech.github.io</a>
+  <p class="eyebrow">Track your request</p>
+  <h2 class="title">Check a ticket or quote.</h2>
+  <p class="lede">Enter your reference number (e.g. RMA-2026-0001 or QT-2026-0001) and the email you used when you submitted it.</p>
+
+  <form class="form-shell" id="track-form">
+    <div class="grid2">
+      <div class="field"><label>Reference number</label><input id="ref-number" type="text" placeholder="RMA-2026-0001" required></div>
+      <div class="field"><label>Email</label><input id="ref-email" type="email" placeholder="jane@example.com" required></div>
+    </div>
+    <button class="btn" type="submit">Track</button>
+    <p class="form-note">We only show the one request matching both fields — never a list of anything.</p>
+  </form>
+
+  <div class="result" id="result">
+    <div class="result-head">
+      <div>
+        <div class="num" id="r-number">RMA-2026-0001</div>
+        <div class="product" id="r-product">NMEA Link — unit repair</div>
+      </div>
+      <span class="status-tag" id="r-status">Repairing</span>
+    </div>
+    <div class="stepper" id="r-stepper"></div>
+  </div>
+
+  <div class="not-found" id="not-found">No request matches that reference number and email. Double-check both, or contact us if you think this is a mistake.</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // TODO: replace with the real values once the homelab Supabase stack is up.
+  const SUPABASE_URL = "REPLACE_WITH_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "REPLACE_WITH_ANON_KEY";
+  const DEMO_MODE = SUPABASE_URL.startsWith("REPLACE_");
+
+  const client = DEMO_MODE ? null : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const TICKET_STEPS = ["new","received","diagnosing","repairing","ready","shipped"];
+  const QUOTE_STEPS = ["requested","quoted","accepted"];
+  const LABELS = {
+    new:"Received", received:"Logged in", diagnosing:"Diagnosing", repairing:"Repairing",
+    ready:"Ready", shipped:"Shipped", closed:"Closed",
+    requested:"Requested", quoted:"Quoted", accepted:"Accepted", declined:"Declined"
+  };
+
+  function renderStepper(steps, currentStatus){
+    const idx = steps.indexOf(currentStatus);
+    document.getElementById("r-stepper").innerHTML = steps.map((s,i) => `
+      <div class="step ${i<=idx ? 'done':''}">
+        <div class="dot"></div>
+        <span>${LABELS[s] || s}</span>
+        <div class="bar"></div>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("track-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const number = document.getElementById("ref-number").value.trim();
+    const email = document.getElementById("ref-email").value.trim();
+    const isQuote = number.toUpperCase().startsWith("QT-");
+
+    document.getElementById("result").classList.remove("show");
+    document.getElementById("not-found").classList.remove("show");
+
+    if (DEMO_MODE) {
+      document.getElementById("r-number").textContent = number || "RMA-2026-0001";
+      document.getElementById("r-product").textContent = isQuote ? "Custom hardware design — quote" : "NMEA Link — unit repair";
+      const status = isQuote ? "quoted" : "repairing";
+      document.getElementById("r-status").textContent = LABELS[status];
+      renderStepper(isQuote ? QUOTE_STEPS : TICKET_STEPS, status);
+      document.getElementById("result").classList.add("show");
+      return;
+    }
+
+    const fn = isQuote ? "lookup_quote" : "lookup_ticket";
+    const params = isQuote ? { p_number: number, p_email: email } : { p_number: number, p_email: email };
+    const { data, error } = await client.rpc(fn, params);
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (error || !row) {
+      document.getElementById("not-found").classList.add("show");
+      return;
+    }
+    document.getElementById("r-number").textContent = row.ticket_number || row.quote_number;
+    document.getElementById("r-product").textContent = row.product || row.service_type;
+    document.getElementById("r-status").textContent = LABELS[row.status] || row.status;
+    renderStepper(isQuote ? QUOTE_STEPS : TICKET_STEPS, row.status);
+    document.getElementById("result").classList.add("show");
+  });
+</script>
+
+</body>
+</html>
