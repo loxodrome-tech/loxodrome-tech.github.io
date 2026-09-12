@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service &amp; RMA — Loxodrome Tech</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#0a1420; --bg-raise:#0d1a29; --surface:#101f31; --surface-hi:#152f45;
+    --line:rgba(237,234,225,0.09); --line-strong:rgba(237,234,225,0.16);
+    --text:#edeae1; --text-dim:#93a2b4; --text-faint:#5c6b7c;
+    --accent:#39bdca; --accent-dim:#2a8f99; --accent-soft:rgba(57,189,202,0.12); --accent-2:#e08a45;
+    --font-display:'Unbounded','Arial Black',sans-serif;
+    --font-body:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.6;}
+  h1,h2,h3{font-family:var(--font-display); margin:0; text-wrap:balance;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+
+  .demo-banner{
+    background:var(--accent-2); color:#1a0f04; font-family:var(--font-mono); font-size:0.8rem;
+    text-align:center; padding:0.55rem 1rem;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding-inline:clamp(1.25rem,4vw,3rem);}
+  main{padding-block:clamp(2.5rem,6vw,4.5rem);}
+  .back{font-family:var(--font-mono); font-size:0.8rem; color:var(--text-faint); display:inline-block; margin-bottom:1.6rem;}
+  .back:hover{color:var(--accent);}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:0.6em; margin-bottom:0.7rem;
+  }
+  .eyebrow::before{content:""; width:1.4em; height:1px; background:var(--accent-dim); display:inline-block;}
+  h2.title{font-size:clamp(1.8rem,3.4vw,2.5rem); font-weight:600;}
+  .lede{color:var(--text-dim); font-size:1rem; max-width:58ch; margin-top:0.8rem;}
+
+  .steps{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:0.9rem; margin-top:2.2rem;
+  }
+  @media (max-width:640px){ .steps{grid-template-columns:repeat(2,1fr);} }
+  .step-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:1rem 1.1rem;
+  }
+  .step-card .n{font-family:var(--font-mono); font-size:0.72rem; color:var(--accent);}
+  .step-card p{font-size:0.84rem; color:var(--text-dim); margin-top:0.4rem;}
+
+  .form-shell{
+    margin-top:2.4rem; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:clamp(1.4rem,3vw,2rem);
+  }
+  .form-shell h3{font-size:1.1rem; margin-bottom:1.2rem;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:1rem;}
+  @media (max-width:520px){ .grid2{grid-template-columns:1fr;} }
+  .field{display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1rem;}
+  .field label{font-family:var(--font-mono); font-size:0.76rem; color:var(--text-dim);}
+  .field label .opt{color:var(--text-faint);}
+  .field input, .field textarea, .field select{
+    background:var(--bg-raise); border:1px solid var(--line-strong); border-radius:6px;
+    color:var(--text); font-family:var(--font-body); font-size:0.95rem; padding:0.65rem 0.8rem;
+    resize:vertical;
+  }
+  .field textarea{min-height:110px;}
+  .field input:focus, .field textarea:focus, .field select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .btn{
+    margin-top:0.4rem; background:var(--accent); color:#06121b; border:none; border-radius:6px;
+    font-family:var(--font-mono); font-size:0.86rem; font-weight:600; letter-spacing:0.02em;
+    padding:0.8rem 1.4rem; cursor:pointer;
+  }
+  .btn:hover{background:#4fd0dc;}
+  .btn:disabled{opacity:0.6; cursor:default;}
+  .form-note{font-family:var(--font-mono); font-size:0.72rem; color:var(--text-faint); margin-top:0.9rem;}
+  .error-note{
+    font-family:var(--font-mono); font-size:0.78rem; color:var(--accent-2); margin-top:1rem; display:none;
+  }
+  .error-note.show{display:block;}
+
+  .confirm{margin-top:2.4rem; display:none;}
+  .confirm.show{display:block;}
+  .confirm-panel{
+    background:var(--accent-soft); border:1px solid rgba(57,189,202,0.28); border-radius:10px;
+    padding:1.6rem 1.8rem;
+  }
+  .confirm-panel .eyebrow{margin-bottom:0.5rem;}
+  .confirm-num{font-family:var(--font-mono); font-size:1.5rem; color:var(--accent); font-weight:600;}
+  .confirm-panel p{color:var(--text-dim); font-size:0.9rem; margin-top:0.6rem;}
+  .confirm-panel a{color:var(--accent); text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Demo mode — backend not connected yet, submissions aren't saved anywhere.</div>
+
+<main class="wrap">
+  <a class="back" href="index.html#salvage">← Back to loxodrome-tech.github.io</a>
+  <p class="eyebrow">Service &amp; RMA</p>
+  <h2 class="title">Send us a unit for repair.</h2>
+  <p class="lede">Field-failed hardware, a unit that needs recalibration, or something you're not sure about — tell us what's going on and we'll get back to you with next steps and, if needed, a return authorization.</p>
+
+  <div class="steps">
+    <div class="step-card"><span class="n">01</span><p>Submit the form below with the unit and the issue.</p></div>
+    <div class="step-card"><span class="n">02</span><p>We reply with an RMA number and shipping instructions.</p></div>
+    <div class="step-card"><span class="n">03</span><p>We diagnose and repair, keeping you posted on status.</p></div>
+    <div class="step-card"><span class="n">04</span><p>Unit ships back — track it anytime with your reference number.</p></div>
+  </div>
+
+  <div class="form-shell" id="form-shell">
+    <h3>Request form</h3>
+    <form id="service-form">
+      <div class="grid2">
+        <div class="field"><label>Full name</label><input id="f-name" type="text" required></div>
+        <div class="field"><label>Email</label><input id="f-email" type="email" required></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Phone <span class="opt">(optional)</span></label><input id="f-phone" type="tel"></div>
+        <div class="field"><label>Priority</label>
+          <select id="f-priority">
+            <option value="normal" selected>Normal</option>
+            <option value="low">Low</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Product</label><input id="f-product" type="text" placeholder="e.g. NMEA Link v2" required></div>
+        <div class="field"><label>Serial number <span class="opt">(optional)</span></label><input id="f-serial" type="text"></div>
+      </div>
+      <div class="field"><label>Describe the issue</label><textarea id="f-issue" required placeholder="What's happening, when it started, anything you've already tried..."></textarea></div>
+      <button class="btn" type="submit" id="f-submit">Submit request</button>
+      <p class="error-note" id="f-error"></p>
+      <p class="form-note">We'll only use these details to process your repair — nothing is shared beyond that.</p>
+    </form>
+  </div>
+
+  <div class="confirm" id="confirm">
+    <div class="confirm-panel">
+      <p class="eyebrow">Request received</p>
+      <div class="confirm-num" id="confirm-num">RMA-2026-0001</div>
+      <p>Save this reference number — you'll need it along with your email to <a href="track.html">track your request</a>. We'll also send a confirmation to the email you provided.</p>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // TODO: replace with the real values once the homelab Supabase stack is up (same pair used in track.html).
+  const SUPABASE_URL = "REPLACE_WITH_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "REPLACE_WITH_ANON_KEY";
+  const DEMO_MODE = SUPABASE_URL.startsWith("REPLACE_");
+
+  const client = DEMO_MODE ? null : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  document.getElementById("service-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = document.getElementById("f-submit");
+    const errorNote = document.getElementById("f-error");
+    errorNote.classList.remove("show");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
+    const payload = {
+      p_full_name: document.getElementById("f-name").value.trim(),
+      p_email: document.getElementById("f-email").value.trim(),
+      p_phone: document.getElementById("f-phone").value.trim() || null,
+      p_product: document.getElementById("f-product").value.trim(),
+      p_serial_number: document.getElementById("f-serial").value.trim() || null,
+      p_issue_description: document.getElementById("f-issue").value.trim(),
+      p_priority: document.getElementById("f-priority").value
+    };
+
+    try {
+      let ticketNumber;
+      if (DEMO_MODE) {
+        await new Promise(r => setTimeout(r, 500));
+        ticketNumber = "RMA-2026-0001";
+      } else {
+        const { data, error } = await client.rpc("submit_service_ticket", payload);
+        if (error) throw error;
+        ticketNumber = data;
+      }
+      document.getElementById("confirm-num").textContent = ticketNumber;
+      document.getElementById("form-shell").style.display = "none";
+      document.getElementById("confirm").classList.add("show");
+    } catch (err) {
+      errorNote.textContent = "Something went wrong submitting this — " + (err.message || "please try again or email us directly.");
+      errorNote.classList.add("show");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit request";
+    }
+  });
+</script>
+
+</body>
+</html>
