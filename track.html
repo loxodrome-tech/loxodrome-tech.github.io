@@ -132,8 +132,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // TODO: replace with the real values once the homelab Supabase stack is up.
-  const SUPABASE_URL = "REPLACE_WITH_SUPABASE_URL";
-  const SUPABASE_ANON_KEY = "REPLACE_WITH_ANON_KEY";
+  const SUPABASE_URL = "http://192.168.0.34:8014";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkxMDUxNTE3LCJleHAiOjIxMDY0MTE1MTd9.-lYWA4qyGzwhw_SccaI7AoMA6IV_2m9KVGV8sNPRRpY";
   const DEMO_MODE = SUPABASE_URL.startsWith("REPLACE_");
 
   const client = DEMO_MODE ? null : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
