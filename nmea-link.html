@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>NMEA Link — Portable NMEA 0183 Monitor &amp; Generator | Loxodrome Tech</title>
+<meta content="NMEA Link is a handheld NMEA 0183 monitor and sentence generator with its own Wi-Fi and web interface. See every sentence on the bus, simulate sensors on the bench, no app required." name="description"/>
+<meta content="NMEA Link — Portable NMEA 0183 Monitor &amp; Generator" property="og:title"/>
+<meta content="Handheld NMEA 0183 monitor and generator with built-in Wi-Fi. Designed and built by Loxodrome Tech." property="og:description"/>
+<meta content="nmea-link-assets/device-hand.jpg" property="og:image"/>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0a1420; --bg-raise:#0d1a29; --surface:#101f31; --surface-hi:#152f45;
+    --line:rgba(237,234,225,0.09); --line-strong:rgba(237,234,225,0.16);
+    --text:#edeae1; --text-dim:#93a2b4; --text-faint:#5c6b7c;
+    --accent:#39bdca; --accent-dim:#2a8f99; --accent-soft:rgba(57,189,202,0.12);
+    --accent-2:#e08a45; --focus:#39bdca;
+    --font-display:'Unbounded','Arial Black',sans-serif;
+    --font-body:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} .reveal{opacity:1!important;transform:none!important;transition:none!important;} }
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  img{max-width:100%;height:auto;display:block;}
+  a{color:inherit;text-decoration:none;}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:4px;}
+  .wrap{max-width:1120px;margin:0 auto;padding-inline:clamp(1.25rem,4vw,3rem);}
+  section{padding-block:clamp(3.5rem,8vw,6.5rem);}
+  .eyebrow{font-family:var(--font-mono);font-size:0.78rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:0.7rem;margin:0 0 1rem;}
+  .eyebrow::before{content:"";width:28px;height:1px;background:var(--accent);}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;line-height:1.12;margin:0;letter-spacing:-0.01em;}
+  h1{font-size:clamp(2.1rem,5.6vw,3.9rem);font-weight:700;}
+  h2{font-size:clamp(1.6rem,3.6vw,2.4rem);}
+  h3{font-size:1.02rem;}
+  .lead{color:var(--text-dim);font-size:clamp(1rem,1.6vw,1.15rem);max-width:56ch;}
+  .section-head{max-width:60ch;margin-bottom:clamp(2rem,4vw,3.2rem);}
+  .section-head p{color:var(--text-dim);margin:1rem 0 0;}
+
+  /* header */
+  header.site{position:sticky;top:0;z-index:20;background:rgba(10,20,32,0.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);}
+  .nav-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;height:64px;}
+  .brand{display:flex;align-items:center;gap:0.7rem;}
+  .brand svg{width:34px;height:34px;}
+  .brand-word{font-family:var(--font-display);font-size:0.82rem;font-weight:600;letter-spacing:0.08em;line-height:1;}
+  .brand-word small{display:block;font-family:var(--font-mono);font-size:0.62rem;color:var(--accent);letter-spacing:0.3em;margin-top:4px;font-weight:500;}
+  nav.links{display:flex;align-items:center;gap:1.6rem;font-size:0.9rem;color:var(--text-dim);}
+  nav.links a:hover{color:var(--text);}
+  @media (max-width:760px){ nav.links a.hide-sm{display:none;} nav.links{gap:1rem;} }
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;font-family:var(--font-mono);font-weight:500;font-size:0.9rem;padding:0.85rem 1.4rem;border-radius:8px;border:1px solid var(--line-strong);background:transparent;color:var(--text);cursor:pointer;transition:transform .15s,background .15s,border-color .15s;}
+  .btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#06222a;font-weight:600;}
+  .btn.primary:hover{background:#4ed0dd;}
+  .btn.sm{padding:0.5rem 0.95rem;font-size:0.82rem;}
+
+  /* hero */
+  .hero{padding-top:clamp(2.5rem,6vw,5rem);background:radial-gradient(900px 480px at 78% 12%,rgba(57,189,202,0.13),transparent 62%);}
+  .hero-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:clamp(2rem,5vw,4.5rem);align-items:center;}
+  @media (max-width:880px){ .hero-grid{grid-template-columns:1fr;} }
+  .hero h1 em{font-style:normal;color:var(--accent);}
+  .hero .lead{margin:1.4rem 0 2rem;}
+  .cta-row{display:flex;flex-wrap:wrap;gap:0.8rem;}
+  .chips{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.8rem;}
+  .chip{font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.04em;color:var(--text-dim);border:1px solid var(--line-strong);padding:0.3rem 0.7rem;border-radius:999px;}
+  .hero-shot{position:relative;}
+  .hero-shot img{border-radius:18px;border:1px solid var(--line-strong);box-shadow:0 30px 70px -20px rgba(0,0,0,0.65);aspect-ratio:4/5;object-fit:cover;width:100%;}
+  .hero-shot figcaption{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);margin-top:0.7rem;}
+
+  /* stat strip */
+  .strip{padding-block:0;border-block:1px solid var(--line);background:var(--bg-raise);}
+  .strip-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+  .stat{padding:1.6rem 1.2rem;border-left:1px solid var(--line);}
+  .stat:first-child{border-left:none;}
+  .stat b{display:block;font-family:var(--font-display);font-size:1.15rem;font-weight:600;color:var(--accent);}
+  .stat span{font-size:0.85rem;color:var(--text-dim);}
+  @media (max-width:760px){ .strip-grid{grid-template-columns:1fr 1fr;} .stat:nth-child(3){border-left:none;} .stat{border-top:1px solid var(--line);} .stat:nth-child(-n+2){border-top:none;} }
+
+  /* cards */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;}
+  @media (max-width:880px){ .cards{grid-template-columns:1fr;} }
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.6rem;}
+  .card .ico{width:42px;height:42px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin-bottom:1.1rem;}
+  .card .ico svg{width:22px;height:22px;}
+  .card p{color:var(--text-dim);margin:0.7rem 0 0;font-size:0.95rem;}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;}
+  @media (max-width:880px){ .steps{grid-template-columns:1fr;max-width:420px;margin-inline:auto;} }
+  .step{display:flex;flex-direction:column;gap:1rem;}
+  .step .num{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);}
+  .step img{border-radius:20px;border:1px solid var(--line-strong);width:100%;box-shadow:0 20px 50px -22px rgba(0,0,0,0.7);}
+  .step p{color:var(--text-dim);margin:0.4rem 0 0;font-size:0.93rem;}
+  .steps-pre{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-bottom:2.2rem;}
+  @media (max-width:880px){ .steps-pre{grid-template-columns:1fr;} }
+  .pre{border-left:2px solid var(--accent);padding:0.2rem 0 0.2rem 1rem;}
+  .pre b{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);display:block;margin-bottom:0.3rem;}
+  .pre span{color:var(--text-dim);font-size:0.95rem;}
+
+  /* features */
+  .feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  @media (max-width:760px){ .feat-grid{grid-template-columns:1fr;} }
+  .feat{padding:1.5rem 1.6rem;border-top:1px solid var(--line);border-left:1px solid var(--line);background:var(--bg-raise);}
+  .feat:nth-child(-n+2){border-top:none;} .feat:nth-child(odd){border-left:none;}
+  @media (max-width:760px){ .feat{border-left:none;} .feat:nth-child(2){border-top:1px solid var(--line);} }
+  .feat p{margin:0.45rem 0 0;color:var(--text-dim);font-size:0.93rem;}
+
+  /* use cases */
+  .uses{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;}
+  @media (max-width:880px){ .uses{grid-template-columns:1fr;} }
+  .use{background:linear-gradient(180deg,var(--surface),var(--bg-raise));border:1px solid var(--line);border-radius:14px;padding:1.6rem;}
+  .use .tag{font-family:var(--font-mono);font-size:0.72rem;color:var(--accent-2);letter-spacing:0.1em;text-transform:uppercase;}
+  .use h3{margin:0.6rem 0 0.6rem;}
+  .use p{margin:0;color:var(--text-dim);font-size:0.93rem;}
+
+  /* specs */
+  .specs-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:start;}
+  @media (max-width:880px){ .specs-grid{grid-template-columns:1fr;} }
+  dl.specs{margin:0;border-top:1px solid var(--line);}
+  .spec-row{display:grid;grid-template-columns:150px 1fr;gap:1rem;padding:0.85rem 0;border-bottom:1px solid var(--line);}
+  .spec-row dt{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;padding-top:2px;}
+  .spec-row dd{margin:0;color:var(--text);font-size:0.95rem;}
+  .specs-photo img{border-radius:16px;border:1px solid var(--line-strong);aspect-ratio:4/5;object-fit:cover;width:100%;}
+
+  /* engineering gallery */
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+  @media (max-width:880px){ .gallery{grid-template-columns:1fr 1fr;} }
+  .gallery figure{margin:0;}
+  .gallery img{border-radius:12px;border:1px solid var(--line);aspect-ratio:3/4;object-fit:cover;width:100%;}
+  .gallery figcaption{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);margin-top:0.55rem;line-height:1.4;}
+
+  /* order */
+  .order{background:radial-gradient(800px 420px at 20% 0%,rgba(224,138,69,0.10),transparent 60%),var(--bg-raise);border-block:1px solid var(--line);}
+  .order-card{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:center;background:var(--surface);border:1px solid var(--line-strong);border-radius:20px;padding:clamp(1.5rem,4vw,3rem);}
+  @media (max-width:880px){ .order-card{grid-template-columns:1fr;} }
+  .order-card img{border-radius:14px;aspect-ratio:4/3;object-fit:cover;width:100%;object-position:center 30%;}
+  .price{font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);font-weight:700;margin:0.6rem 0 0.2rem;}
+  .price small{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-faint);font-weight:400;margin-left:0.4rem;}
+  .stock{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--font-mono);font-size:0.8rem;color:var(--accent-2);margin:0.5rem 0 1.4rem;}
+  .stock[hidden]{display:none;}
+  .stock i{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 0 4px rgba(224,138,69,0.18);}
+  .order-list{list-style:none;padding:0;margin:0 0 1.6rem;color:var(--text-dim);font-size:0.93rem;}
+  .order-list li{padding:0.35rem 0 0.35rem 1.4rem;position:relative;}
+  .order-list li::before{content:"";position:absolute;left:0;top:0.78rem;width:10px;height:5px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:rotate(-45deg);}
+  .fineprint{font-size:0.78rem;color:var(--text-faint);margin-top:1rem;font-family:var(--font-mono);}
+
+  /* faq */
+  .faq{max-width:760px;}
+  details{border-bottom:1px solid var(--line);padding:1.1rem 0;}
+  summary{cursor:pointer;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:1rem;}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"+";font-family:var(--font-mono);color:var(--accent);}
+  details[open] summary::after{content:"–";}
+  details p{color:var(--text-dim);margin:0.8rem 0 0;font-size:0.95rem;}
+
+  footer{border-top:1px solid var(--line);padding-block:2.6rem;color:var(--text-faint);font-size:0.85rem;}
+  .footer-row{display:flex;flex-wrap:wrap;gap:1.5rem 2.5rem;align-items:center;justify-content:space-between;}
+  .footer-links{display:flex;flex-wrap:wrap;gap:0.4rem 1.4rem;}
+  .footer-links a:hover{color:var(--text);}
+
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  @media (max-width:560px){ nav.links .btn.sm{display:none;} .brand-word{font-size:0.74rem;} }
+  .lang{display:inline-flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden;}
+  .lang button{font-family:var(--font-mono);font-size:0.74rem;letter-spacing:0.06em;color:var(--text-dim);background:transparent;border:0;padding:0.38rem 0.6rem;cursor:pointer;}
+  .lang button:hover{color:var(--text);}
+  .lang button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);}
+  .foot-brand .slogan{margin:0.7rem 0 0;font-family:var(--font-mono);font-size:0.78rem;color:var(--text-dim);letter-spacing:0.02em;}
+
+  /* delivery & checkout */
+  .ship-card{margin-top:1.4rem;background:var(--surface);border:1px solid var(--line-strong);border-radius:20px;padding:clamp(1.4rem,3.5vw,2.4rem);}
+  .ship-card[hidden]{display:none;}
+  .ship-card h3{font-size:1.25rem;margin-bottom:0.4rem;}
+  .ship-card .sub{color:var(--text-dim);font-size:0.93rem;margin:0 0 1.4rem;max-width:62ch;}
+  .ship-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.2rem,3vw,2.4rem);align-items:start;}
+  @media (max-width:880px){ .ship-grid{grid-template-columns:1fr;} }
+  .ship-card label.f{display:block;font-family:var(--font-mono);font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 0.4rem;}
+  .ship-card select{width:100%;background:var(--bg-raise);color:var(--text);border:1px solid var(--line-strong);border-radius:8px;padding:0.75rem 0.8rem;font-family:var(--font-body);font-size:0.95rem;}
+  .opts{display:grid;gap:0.6rem;margin-top:1rem;}
+  .opt{display:flex;gap:0.8rem;align-items:flex-start;border:1px solid var(--line-strong);border-radius:10px;padding:0.8rem 0.9rem;cursor:pointer;background:var(--bg-raise);}
+  .opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft);}
+  .opt.off{opacity:0.5;cursor:not-allowed;}
+  .opt input{margin-top:0.25rem;accent-color:var(--accent);}
+  .opt b{display:block;font-weight:500;font-size:0.95rem;}
+  .opt small{display:block;color:var(--text-dim);font-size:0.8rem;margin-top:0.1rem;}
+  .opt .pr{margin-left:auto;font-family:var(--font-mono);font-size:0.9rem;white-space:nowrap;}
+  #mr-wrap{margin-top:1rem;}
+  #mr-wrap[hidden]{display:none;}
+  #mr-widget{border-radius:10px;overflow:hidden;background:#fff;color:#111;min-height:60px;}
+  .relay-sel{margin-top:0.6rem;font-size:0.88rem;color:var(--accent);font-family:var(--font-mono);}
+  .totals{border-top:1px solid var(--line);margin-top:0.2rem;padding-top:1rem;font-size:0.95rem;}
+  .totals div{display:flex;justify-content:space-between;padding:0.2rem 0;color:var(--text-dim);}
+  .totals .t{color:var(--text);font-weight:600;font-size:1.15rem;padding-top:0.6rem;}
+  #pp-wrap{margin-top:1rem;min-height:48px;}
+  .ship-msg{font-size:0.85rem;color:var(--accent-2);margin-top:0.7rem;font-family:var(--font-mono);}
+  .ship-ok{font-size:1rem;color:var(--accent);margin-top:0.7rem;}
+  .ship-quote{margin-top:0.9rem;}
+</style>
+</head>
+<body id="top">
+<header class="site">
+<div class="wrap nav-row">
+<a aria-label="Loxodrome Tech — home" class="brand" href="index.html">
+<svg aria-hidden="true" viewbox="0 0 64 64">
+<circle cx="32" cy="32" fill="#0d1a29" r="30" stroke="#39bdca" stroke-width="1.4"></circle>
+<g fill="none" opacity="0.65" stroke="#39bdca" stroke-width="1.1">
+<ellipse cx="32" cy="32" rx="30" ry="12"></ellipse>
+<ellipse cx="32" cy="32" rx="30" ry="22"></ellipse>
+<line x1="32" x2="32" y1="2" y2="62"></line>
+</g>
+<path d="M6 44 C 22 14, 42 50, 58 20" fill="none" stroke="#e08a45" stroke-linecap="round" stroke-width="2.6"></path>
+</svg>
+<span class="brand-word">LOXODROME<small>TECH</small></span>
+</a>
+<nav aria-label="Page sections" class="links">
+<a class="hide-sm" data-i18n="0" href="#what">What it does</a>
+<a class="hide-sm" data-i18n="1" href="#how">How it works</a>
+<a class="hide-sm" data-i18n="2" href="#specs">Specs</a>
+<a class="hide-sm" data-i18n="3" href="#support">Support</a>
+<a class="hide-sm" data-i18n="4" href="#faq">FAQ</a>
+<a class="btn primary sm" data-i18n="5" href="#order">Order</a>
+<div aria-label="Language" class="lang" role="group"><button data-lang="en" type="button">EN</button><button data-lang="fr" type="button">FR</button><button data-lang="es" type="button">ES</button></div></nav>
+</div>
+</header>
+<main>
+<!-- HERO -->
+<section class="hero">
+<div class="wrap hero-grid">
+<div class="reveal">
+<p class="eyebrow" data-i18n="6">NMEA Link · Portable NMEA 0183 Monitor &amp; Generator</p>
+<h1 data-i18n="7">See every sentence on the bus. <em>From your pocket.</em></h1>
+<p class="lead" data-i18n="8">A handheld NMEA 0183 monitor and sentence generator with its own Wi-Fi. Plug it into the bus, open your phone, and watch GPS, AIS, sounder, wind and more live — or simulate the sensors on the bench. No app, no laptop, no cables to the cockpit.</p>
+<div class="cta-row">
+<a class="btn primary" data-i18n="9" href="#order">Order NMEA Link</a>
+<a class="btn" data-i18n="10" href="#how">See how it works</a>
+</div>
+<div aria-label="Highlights" class="chips">
+<span class="chip" data-i18n="11">Built-in Wi-Fi</span>
+<span class="chip" data-i18n="12">No app needed</span>
+<span class="chip" data-i18n="13">Auto baud detection</span>
+<span class="chip" data-i18n="14">Isolated RS-422/485 input</span>
+<span class="chip" data-i18n="15">OTA updates</span>
+</div>
+</div>
+<figure class="hero-shot reveal">
+<img alt="The NMEA Link handheld unit held in one hand, showing its built-in display with model, baud rate and pause status." data-i18n-alt="0" fetchpriority="high" height="1467" src="nmea-link-assets/device-hand.jpg" width="1100"/>
+<figcaption data-i18n="16">NMEA Link — handheld, with its own display. Designed and built in-house.</figcaption>
+</figure>
+</div>
+</section>
+<!-- STATS -->
+<div aria-label="Key facts" class="strip" role="region">
+<div class="wrap strip-grid">
+<div class="stat"><b data-i18n="17">4800–115200</b><span data-i18n="18">baud, with automatic detection</span></div>
+<div class="stat"><b data-i18n="19">Wi-Fi</b><span data-i18n="20">own network, works with no internet</span></div>
+<div class="stat"><b data-i18n="21">Any browser</b><span data-i18n="22">phone, tablet or laptop — no app</span></div>
+<div class="stat"><b data-i18n="23">UDP 10110</b><span data-i18n="24">stream sentences to your own tools</span></div>
+</div>
+</div>
+<!-- WHAT IT DOES -->
+<section id="what">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="0">What it does</p>
+<h2 data-i18n="25">One small unit for the whole diagnostic job.</h2>
+<p data-i18n="26">Whether you are commissioning an installation, chasing a fault, or testing equipment with no boat attached, NMEA Link replaces the laptop, the serial adapter and the terminal software.</p>
+</div>
+<div class="cards">
+<article class="card reveal">
+<div class="ico"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M2 12h4l3-8 4 16 3-8h6"></path></svg></div>
+<h3 data-i18n="27">Monitor</h3>
+<p data-i18n="28">Watch the live NMEA 0183 stream and filter it by family — GPS, AIS, sounder, speed, heading, radar, weather, transducer. Pause to read, clear to start fresh, slow the scroll when the bus is busy.</p>
+</article>
+<article class="card reveal">
+<div class="ico"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 17V7l7 5-7 5zM13 7h7M13 12h7M13 17h7"></path></svg></div>
+<h3 data-i18n="29">Generate</h3>
+<p data-i18n="30">Pick a sensor, choose a sentence type and an interval, and send it. Test a plotter, an AIS display or an autopilot input on the bench without a boat, a sensor or a signal source.</p>
+</article>
+<article class="card reveal">
+<div class="ico"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01"></path></svg></div>
+<h3 data-i18n="31">Connect</h3>
+<p data-i18n="32">The unit creates its own Wi-Fi network. Join it from your phone and the interface opens by itself — or stream the sentences over UDP to a chartplotter, OpenPlotter or any software you already use.</p>
+</article>
+</div>
+</div>
+</section>
+<!-- HOW IT WORKS -->
+<section id="how" style="background:var(--bg-raise);border-block:1px solid var(--line);">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="1">How it works</p>
+<h2 data-i18n="33">From plug-in to live data in under a minute.</h2>
+</div>
+<div class="steps-pre reveal">
+<div class="pre"><b data-i18n="34">01 · CONNECT</b><span data-i18n="35">Clip the probe onto the NMEA 0183 line (A/B). The unit runs on its own internal battery.</span></div>
+<div class="pre"><b data-i18n="36">02 · JOIN</b><span data-i18n="37">Join the “NMEA_Link” Wi-Fi network from your phone. The interface opens as a captive portal.</span></div>
+<div class="pre"><b data-i18n="38">03 · WATCH</b><span data-i18n="39">The unit finds the baud rate on its own and the sentences start to flow.</span></div>
+</div>
+<div class="steps">
+<div class="step reveal">
+<img alt="NMEA Reader web interface on a phone showing filtered live sentences, baud rate buttons and pause and clear controls." data-i18n-alt="1" height="1127" loading="lazy" src="nmea-link-assets/ui-reader.jpg" width="520"/>
+<div><span class="num" data-i18n="40">LIVE MONITOR</span><p data-i18n="41">Live sentences, grouped by family, with baud rate selection, pause, clear and a speed slider.</p></div>
+</div>
+<div class="step reveal">
+<img alt="NMEA Reader web interface showing colour-coded filters for GPS, AIS, sounder, speed, heading, radar, weather and transducer." data-i18n-alt="2" height="1127" loading="lazy" src="nmea-link-assets/ui-filters.jpg" width="520"/>
+<div><span class="num" data-i18n="42">FILTERS</span><p data-i18n="43">Colour-coded filters let you isolate one instrument or look at everything at once.</p></div>
+</div>
+<div class="step reveal">
+<img alt="NMEA Generator web interface where a sensor, sentence type and interval are chosen to simulate NMEA data." data-i18n-alt="3" height="1127" loading="lazy" src="nmea-link-assets/ui-generator.jpg" width="520"/>
+<div><span class="num" data-i18n="44">GENERATOR</span><p data-i18n="45">Choose a sensor, a sentence and an interval, then start sending — ideal for bench testing.</p></div>
+</div>
+</div>
+</div>
+</section>
+<!-- FEATURES -->
+<section id="features">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="46">Features</p>
+<h2 data-i18n="47">Built for the people who fix boats.</h2>
+</div>
+<div class="feat-grid reveal">
+<div class="feat"><h3 data-i18n="48">Automatic baud detection</h3><p data-i18n="49">The firmware scans the line and locks onto the baud rate by itself, from 4800 up to 115200. You can still force a rate from the interface.</p></div>
+<div class="feat"><h3 data-i18n="50">Isolated input</h3><p data-i18n="51">The RS-422/485 receiver is galvanically isolated, so a ground difference on the boat does not become your problem.</p></div>
+<div class="feat"><h3 data-i18n="52">Its own display</h3><p data-i18n="53">The unit shows its mode, baud rate and status on the front, so you can read it at a glance without opening anything.</p></div>
+<div class="feat"><h3 data-i18n="54">Works offline</h3><p data-i18n="55">Everything runs on the unit — Wi-Fi, interface and generator, powered by its own battery. No internet, no account, no cloud.</p></div>
+<div class="feat"><h3 data-i18n="56">Over-the-air updates</h3><p data-i18n="57">Upload new firmware from the browser. Improvements reach your unit without opening the case or connecting a programmer.</p></div>
+<div class="feat"><h3 data-i18n="58">Battery powered</h3><p data-i18n="59">An internal rechargeable Li-ion battery makes it fully standalone. Charge it from any USB charger or power bank, and keep working while it charges.</p></div>
+</div>
+</div>
+</section>
+<!-- USE CASES -->
+<section style="background:var(--bg-raise);border-block:1px solid var(--line);">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="60">Where it earns its place</p>
+<h2 data-i18n="61">Made on the job, for the job.</h2>
+<p data-i18n="62">NMEA Link comes from real marine electronics work — commissioning and fault-finding on board — not from a lab.</p>
+</div>
+<div class="uses">
+<div class="use reveal"><span class="tag" data-i18n="63">Commissioning</span><h3 data-i18n="64">Prove the installation</h3><p data-i18n="65">Check that every sensor is talking, at the right baud rate and with valid checksums, before you hand the boat back.</p></div>
+<div class="use reveal"><span class="tag" data-i18n="66">Fault-finding</span><h3 data-i18n="67">Find the silent device</h3><p data-i18n="68">Look at the bus from any spot on board, isolate one instrument with a filter and see exactly what it is — or is not — sending.</p></div>
+<div class="use reveal"><span class="tag" data-i18n="69">Bench testing</span><h3 data-i18n="70">No boat required</h3><p data-i18n="71">Generate the sentences a display, plotter or autopilot expects and test it on the workbench or in the workshop.</p></div>
+</div>
+</div>
+</section>
+<!-- SPECS -->
+<section id="specs">
+<div class="wrap specs-grid">
+<div class="reveal">
+<p class="eyebrow" data-i18n="72">Specifications</p>
+<h2 data-i18n="73" style="margin-bottom:1.6rem;">The details.</h2>
+<dl class="specs">
+<div class="spec-row"><dt data-i18n="74">Standard</dt><dd data-i18n="75">NMEA 0183</dd></div>
+<div class="spec-row"><dt data-i18n="76">Input</dt><dd data-i18n="77">RS-422/485 receiver (MAX490), galvanically isolated</dd></div>
+<div class="spec-row"><dt data-i18n="78">Baud rates</dt><dd data-i18n="79">4800 · 9600 · 38400 · 115200, with automatic detection</dd></div>
+<div class="spec-row"><dt data-i18n="80">Sentence families</dt><dd data-i18n="81">GPS, AIS, sounder, speed, heading, radar, weather, transducer</dd></div>
+<div class="spec-row"><dt data-i18n="82">Wireless</dt><dd data-i18n="83">Own Wi-Fi network with captive-portal web interface</dd></div>
+<div class="spec-row"><dt data-i18n="84">Network stream</dt><dd data-i18n="85">UDP, port 10110</dd></div>
+<div class="spec-row"><dt data-i18n="86">Generator</dt><dd data-i18n="87">Selectable sensor, sentence type and interval</dd></div>
+<div class="spec-row"><dt data-i18n="88">Processor</dt><dd data-i18n="89">ESP32-S3</dd></div>
+<div class="spec-row"><dt data-i18n="90">Display</dt><dd data-i18n="91">Built-in, shows model, baud rate and status</dd></div>
+<div class="spec-row"><dt data-i18n="92">Power</dt><dd data-i18n="93">Internal 3.7 V Li-ion (18650) battery; charges over USB (power only)</dd></div>
+<div class="spec-row"><dt data-i18n="94">Connection</dt><dd data-i18n="95">External probe with DB9 connector and test leads</dd></div>
+<div class="spec-row"><dt data-i18n="96">Checks</dt><dd data-i18n="97">Checksum verification, automatic sensor detection and sentence classification</dd></div>
+<div class="spec-row"><dt data-i18n="98">Firmware</dt><dd data-i18n="99">Free updates over the air from the browser</dd></div>
+<div class="spec-row"><dt data-i18n="100">Warranty</dt><dd data-i18n="101">1 year against manufacturing and component failures</dd></div>
+<div class="spec-row"><dt data-i18n="102">Hardware</dt><dd data-i18n="103">In-house design, 4-layer PCB, handheld enclosure</dd></div>
+</dl>
+</div>
+<div class="specs-photo reveal">
+<img alt="NMEA Link unit in hand next to its open enclosure parts on a workbench." data-i18n-alt="4" height="1467" loading="lazy" src="nmea-link-assets/device-hand-2.jpg" width="1100"/>
+</div>
+</div>
+</section>
+<!-- ENGINEERING -->
+<section style="background:var(--bg-raise);border-block:1px solid var(--line);">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="104">Under the hood</p>
+<h2 data-i18n="105">Designed and assembled in‑house.</h2>
+<p data-i18n="106">Every NMEA Link starts as a schematic and a bare board. The hardware, firmware and enclosure are all developed by the same person who uses it on boats.</p>
+</div>
+<div class="gallery reveal">
+<figure><img alt="Bare green NMEA Link circuit board." data-i18n-alt="5" height="1200" loading="lazy" src="nmea-link-assets/pcb-bare.jpg" width="900"/><figcaption data-i18n="107">The board — 4 layers, designed in Altium.</figcaption></figure>
+<figure><img alt="Circuit board in an assembly jig on a workbench with the schematic on screen." data-i18n-alt="6" height="1333" loading="lazy" src="nmea-link-assets/assembly.jpg" width="1000"/><figcaption data-i18n="108">Assembly bench, schematic on screen.</figcaption></figure>
+<figure><img alt="Assembled NMEA Link board with the ESP32-S3 module mounted." data-i18n-alt="7" height="1200" loading="lazy" src="nmea-link-assets/pcb-top.jpg" width="900"/><figcaption data-i18n="109">Assembled board with the ESP32-S3.</figcaption></figure>
+<figure><img alt="Prototype on the test bench streaming NMEA data to a tablet." data-i18n-alt="8" height="1333" loading="lazy" src="nmea-link-assets/bench-test.jpg" width="1000"/><figcaption data-i18n="110">Bench test against real NMEA equipment.</figcaption></figure>
+</div>
+</div>
+</section>
+<!-- SUPPORT & WARRANTY -->
+<section id="support">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="111">Support &amp; warranty</p>
+<h2 data-i18n="112">Backed by Loxodrome Tech.</h2>
+<p data-i18n="113">You are buying from the people who design, build and maintain NMEA Link — and who stay reachable after the sale.</p>
+</div>
+<div class="cards">
+<article class="card reveal">
+<div class="ico"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+<h3 data-i18n="114">24/7 support</h3>
+<p data-i18n="115">Open a request any time, day or night, from anywhere in the world. Every request gets a reference number you can follow online until it is resolved.</p>
+</article>
+<article class="card reveal">
+<div class="ico"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"></path></svg></div>
+<h3 data-i18n="116">Firmware updates</h3>
+<p data-i18n="117">New features and fixes are delivered as firmware updates, installed over the air from your browser. No programmer, no opening the case, no extra cost.</p>
+</article>
+<article class="card reveal">
+<div class="ico"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6l8-3z"></path><path d="M9 12l2 2 4-4"></path></svg></div>
+<h3 data-i18n="118">1-year warranty</h3>
+<p data-i18n="119">Every unit is covered for one year against manufacturing and component failures. Damage caused by misuse or accidents — drops, liquid, wrong wiring — is not covered.</p>
+</article>
+</div>
+</div>
+</section>
+<!-- ORDER -->
+<section class="order" id="order">
+<div class="wrap">
+<div class="order-card reveal">
+<div>
+<p class="eyebrow" data-i18n="5">Order</p>
+<h2 data-i18n="120">NMEA Link</h2>
+<div class="price" id="price">Price on request</div>
+<div class="stock" hidden="" id="stock"><i></i><span id="stock-text"></span></div>
+<ul class="order-list">
+<li data-i18n="121">Portable NMEA 0183 monitor &amp; generator</li>
+<li data-i18n="122">Built in small batches — each unit assembled and tested by hand</li>
+<li data-i18n="123">Free firmware updates over the air</li>
+<li data-i18n="124">24/7 support from Loxodrome Tech</li>
+<li data-i18n="125">1-year warranty against defects</li>
+</ul>
+<div class="cta-row">
+<a class="btn primary" data-i18n="126" href="mailto:contact@loxodrome.tech?subject=NMEA%20Link%20order&body=Units%3A%20%0ACountry%20%2F%20city%3A%20" id="buy-btn">Order by email</a>
+<a class="btn" id="wa-btn" hidden target="_blank" rel="noopener"></a>
+<a class="btn" data-i18n="127" href="service.html">Service &amp; RMA</a>
+</div>
+<p class="fineprint" data-i18n="128" id="order-note">Email us how many units you need and your country — we reply personally with availability, shipping cost and how to pay. Shipping is paid by the buyer.</p>
+</div>
+<img alt="NMEA Link unit held over a workbench." data-i18n-alt="9" height="1467" loading="lazy" src="nmea-link-assets/device-desk.jpg" width="1100"/>
+</div>
+<div class="ship-card" id="ship-card" hidden>
+<h3 data-sx="title"></h3>
+<p class="sub" data-sx="sub"></p>
+<div class="ship-grid">
+<div>
+<label class="f" for="ship-country" data-sx="country"></label>
+<select id="ship-country"></select>
+<div class="opts" id="ship-opts"></div>
+<div id="mr-wrap" hidden>
+<label class="f" data-sx="relayLabel" style="margin-top:1rem;"></label>
+<div id="mr-widget"></div>
+<input type="hidden" id="mr-target">
+<div class="relay-sel" id="relay-sel"></div>
+</div>
+</div>
+<div>
+<div class="totals">
+<div><span data-sx="product"></span><span id="t-prod"></span></div>
+<div><span data-sx="shipping"></span><span id="t-ship">—</span></div>
+<div class="t"><span data-sx="total"></span><span id="t-total">—</span></div>
+</div>
+<div id="pp-wrap"></div>
+<div class="ship-msg" id="ship-msg" role="status"></div>
+<div class="ship-quote"><a class="btn" id="ship-quote-btn" href="quote.html" data-sx="quoteBtn"></a></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ -->
+<section id="faq">
+<div class="wrap">
+<div class="section-head reveal">
+<p class="eyebrow" data-i18n="4">FAQ</p>
+<h2 data-i18n="129">Questions, answered.</h2>
+</div>
+<div class="faq reveal">
+<details><summary data-i18n="130">Can I use it as part of a ship’s navigation system?</summary><p data-i18n="131">No. NMEA Link is a diagnostic and test instrument. It is not designed to replace certified navigation or safety equipment and should not be left installed as a permanent part of a vessel’s navigation system.</p></details>
+<details><summary data-i18n="132">Do I need to install an app?</summary><p data-i18n="133">No. NMEA Link creates its own Wi-Fi network. Join it and the interface opens in your browser, on a phone, tablet or laptop.</p></details>
+<details><summary data-i18n="134">Does it need internet?</summary><p data-i18n="135">No. Everything runs on the unit itself, so it works on a boat in the middle of nowhere or on a workbench.</p></details>
+<details><summary data-i18n="136">Which baud rates does it support?</summary><p data-i18n="137">4800, 9600, 38400 and 115200. The unit also detects the baud rate automatically.</p></details>
+<details><summary data-i18n="138">Can I send NMEA sentences, not just read them?</summary><p data-i18n="139">Yes. The built-in generator lets you choose a sensor, a sentence type and an interval so you can simulate instruments and test equipment.</p></details>
+<details><summary data-i18n="140">Can I use the data in other software?</summary><p data-i18n="141">Yes. The unit streams sentences over UDP on port 10110, which you can pick up in OpenPlotter or any software that reads NMEA over the network.</p></details>
+<details><summary data-i18n="142">How do I update the firmware?</summary><p data-i18n="143">From the browser interface, with an over-the-air update. You do not need to open the unit or use a programmer.</p></details>
+<details><summary data-i18n="144">What does the warranty cover?</summary><p data-i18n="145">One year from delivery, against manufacturing and component failures. If your unit fails under normal use we repair or replace it. The warranty does not cover damage caused by misuse or accidents, such as drops, liquid damage or incorrect wiring.</p></details>
+<details><summary data-i18n="146">How does 24/7 support work?</summary><p data-i18n="147">Open a request on the <a href="service.html" style="color:var(--accent);">Service &amp; RMA</a> page at any time. You get a reference number straight away and can follow the status of your request online.</p></details>
+<details><summary data-i18n="148">Something is wrong with my unit.</summary><p data-i18n="149">Open a request on the <a href="service.html" style="color:var(--accent);">Service &amp; RMA</a> page and you will get a reference number you can follow at any time.</p></details>
+</div>
+</div>
+</section>
+</main>
+<footer>
+<div class="wrap footer-row">
+<div class="foot-brand"><a aria-label="Loxodrome Tech — home" class="brand" href="index.html">
+<span class="brand-word">LOXODROME<small>TECH</small></span>
+</a><p class="slogan" data-x="slogan">Instruments built to hold a bearing.</p></div>
+<div class="footer-links">
+<a data-i18n="150" href="index.html">Loxodrome Tech</a>
+<a data-i18n="127" href="service.html">Service &amp; RMA</a>
+<a data-i18n="151" href="mailto:contact@loxodrome.tech">Contact us</a>
+<a data-i18n="152" href="track.html">Track a request</a>
+<a data-i18n="153" href="https://github.com/loxodrome-tech" rel="noopener" target="_blank">GitHub</a>
+</div>
+<div>© <span id="yr"></span> Loxodrome Tech</div>
+</div>
+</footer>
+<script>
+  // ---- Store settings: edit these values to publish price, stock and checkout ----
+  const STORE = {
+    price: "€240",     // leave empty to show "Price on request"
+    priceNote: "shipping not included",    // e.g. "incl. VAT, excl. shipping"
+    stock: 10,        // number of units available in this batch (null hides it)
+    paymentUrl: ""    // checkout link (PayPal, Stripe, Shopify…) — empty = "Request to order"
+  };
+
+  // ---- Languages (EN default, FR, ES) ----
+  const DICT = {"fr": {"0": "Fonctions", "1": "Fonctionnement", "2": "Specs", "3": "Support", "4": "FAQ", "5": "Commander", "6": "NMEA Link · Moniteur et générateur NMEA 0183 portable", "7": "Voyez chaque trame du bus. <em>Depuis votre poche.</em>", "8": "Un moniteur et générateur de trames NMEA 0183 portable, avec son propre Wi-Fi. Branchez-le sur le bus, ouvrez votre téléphone et suivez en direct le GPS, l'AIS, le sondeur, le vent et plus encore — ou simulez les capteurs sur l'établi. Pas d'appli, pas d'ordinateur, pas de câbles jusqu'au cockpit.", "9": "Commander le NMEA Link", "10": "Voir le fonctionnement", "11": "Wi-Fi intégré", "12": "Aucune appli requise", "13": "Détection auto du débit", "14": "Entrée RS-422/485 isolée", "15": "Mises à jour OTA", "16": "NMEA Link — portable, avec son propre écran. Conçu et fabriqué en interne.", "17": "4800–115200", "18": "bauds, avec détection automatique", "19": "Wi-Fi", "20": "réseau propre, sans internet", "21": "Tout navigateur", "22": "téléphone, tablette ou PC — sans appli", "23": "UDP 10110", "24": "diffusez les trames vers vos propres outils", "25": "Un petit boîtier pour tout le diagnostic.", "26": "Mise en service d'une installation, recherche de panne ou test d'un équipement sans bateau : le NMEA Link remplace l'ordinateur, l'adaptateur série et le logiciel de terminal.", "27": "Surveiller", "28": "Suivez le flux NMEA 0183 en direct et filtrez-le par famille — GPS, AIS, sondeur, vitesse, cap, radar, météo, transducteur. Pause pour lire, effacer pour repartir de zéro, défilement ralenti quand le bus est chargé.", "29": "Générer", "30": "Choisissez un capteur, un type de trame et un intervalle, puis envoyez. Testez un traceur, un afficheur AIS ou une entrée de pilote automatique sur l'établi, sans bateau, sans capteur ni source de signal.", "31": "Connecter", "32": "Le boîtier crée son propre réseau Wi-Fi. Rejoignez-le depuis votre téléphone et l'interface s'ouvre toute seule — ou diffusez les trames en UDP vers un traceur, OpenPlotter ou tout logiciel que vous utilisez déjà.", "33": "Du branchement aux données en direct en moins d'une minute.", "34": "01 · CONNECTER", "35": "Pincez la sonde sur la ligne NMEA 0183 (A/B). Le boîtier fonctionne sur sa batterie interne.", "36": "02 · REJOINDRE", "37": "Rejoignez le réseau Wi-Fi « NMEA_Link » depuis votre téléphone. L'interface s'ouvre en portail captif.", "38": "03 · OBSERVER", "39": "Le boîtier trouve seul le débit et les trames commencent à défiler.", "40": "MONITEUR EN DIRECT", "41": "Trames en direct, groupées par famille, avec choix du débit, pause, effacement et curseur de vitesse.", "42": "FILTRES", "43": "Des filtres par couleur isolent un instrument ou affichent tout à la fois.", "44": "GÉNÉRATEUR", "45": "Choisissez un capteur, une trame et un intervalle, puis lancez l'envoi — idéal pour les essais sur établi.", "46": "Caractéristiques", "47": "Conçu pour ceux qui réparent les bateaux.", "48": "Détection automatique du débit", "49": "Le firmware analyse la ligne et se cale seul sur le débit, de 4800 à 115200. Vous pouvez toujours imposer un débit depuis l'interface.", "50": "Entrée isolée", "51": "Le récepteur RS-422/485 est isolé galvaniquement : une différence de masse à bord ne devient pas votre problème.", "52": "Son propre écran", "53": "Le boîtier affiche son mode, son débit et son état en façade : lisible d'un coup d'œil, sans rien ouvrir.", "54": "Fonctionne hors ligne", "55": "Tout tourne dans le boîtier — Wi-Fi, interface et générateur, sur sa propre batterie. Sans internet, sans compte, sans cloud.", "56": "Mises à jour à distance", "57": "Chargez un nouveau firmware depuis le navigateur. Les améliorations arrivent sans ouvrir le boîtier ni brancher de programmateur.", "58": "Sur batterie", "59": "Une batterie Li-ion rechargeable interne le rend totalement autonome. Rechargez-le sur n'importe quel chargeur USB ou batterie externe, et continuez à travailler pendant la charge.", "60": "Là où il fait la différence", "61": "Né sur le terrain, pour le terrain.", "62": "Le NMEA Link vient du vrai travail d'électronique marine — mise en service et recherche de pannes à bord — pas d'un laboratoire.", "63": "Mise en service", "64": "Valider l'installation", "65": "Vérifiez que chaque capteur émet, au bon débit et avec des checksums valides, avant de rendre le bateau.", "66": "Recherche de pannes", "67": "Trouver l'équipement muet", "68": "Observez le bus depuis n'importe où à bord, isolez un instrument avec un filtre et voyez exactement ce qu'il envoie — ou n'envoie pas.", "69": "Essais sur établi", "70": "Pas besoin de bateau", "71": "Générez les trames qu'attend un afficheur, un traceur ou un pilote automatique et testez-le sur l'établi ou à l'atelier.", "72": "Spécifications", "73": "Les détails.", "74": "Norme", "75": "NMEA 0183", "76": "Entrée", "77": "Récepteur RS-422/485 (MAX490), isolé galvaniquement", "78": "Débits", "79": "4800 · 9600 · 38400 · 115200, avec détection automatique", "80": "Familles de trames", "81": "GPS, AIS, sondeur, vitesse, cap, radar, météo, transducteur", "82": "Sans fil", "83": "Réseau Wi-Fi propre avec interface web en portail captif", "84": "Flux réseau", "85": "UDP, port 10110", "86": "Générateur", "87": "Capteur, type de trame et intervalle au choix", "88": "Processeur", "89": "ESP32-S3", "90": "Écran", "91": "Intégré, affiche le mode, le débit et l'état", "92": "Alimentation", "93": "Batterie interne Li-ion 3,7 V (18650) ; charge par USB (alimentation uniquement)", "94": "Connexion", "95": "Sonde externe avec connecteur DB9 et pointes de test", "96": "Contrôles", "97": "Vérification du checksum, détection automatique du capteur et classification des trames", "98": "Firmware", "99": "Mises à jour gratuites à distance depuis le navigateur", "100": "Garantie", "101": "1 an contre les défauts de fabrication et de composants", "102": "Matériel", "103": "Conception interne, PCB 4 couches, boîtier portable", "104": "Sous le capot", "105": "Conçu et assemblé en interne.", "106": "Chaque NMEA Link commence par un schéma et une carte nue. Le matériel, le firmware et le boîtier sont tous développés par la personne qui l'utilise à bord.", "107": "La carte — 4 couches, conçue sous Altium.", "108": "Établi d'assemblage, schéma à l'écran.", "109": "Carte assemblée avec l'ESP32-S3.", "110": "Essai sur établi avec de vrais équipements NMEA.", "111": "Support et garantie", "112": "Soutenu par Loxodrome Tech.", "113": "Vous achetez auprès de ceux qui conçoivent, fabriquent et font évoluer le NMEA Link — et qui restent joignables après la vente.", "114": "Support 24/7", "115": "Ouvrez une demande à toute heure, de jour comme de nuit, depuis n'importe où dans le monde. Chaque demande reçoit un numéro de référence à suivre en ligne jusqu'à sa résolution.", "116": "Mises à jour du firmware", "117": "Nouveautés et correctifs arrivent par mises à jour du firmware, installées à distance depuis votre navigateur. Sans programmateur, sans ouvrir le boîtier, sans frais.", "118": "Garantie 1 an", "119": "Chaque appareil est couvert un an contre les défauts de fabrication et de composants. Les dommages dus à une mauvaise utilisation ou à un accident — chutes, liquides, mauvais câblage — ne sont pas couverts.", "120": "NMEA Link", "121": "Moniteur et générateur NMEA 0183 portable", "122": "Fabriqué en petites séries — chaque appareil est assemblé et testé à la main", "123": "Mises à jour du firmware gratuites à distance", "124": "Support 24/7 par Loxodrome Tech", "125": "Garantie 1 an contre les défauts", "126": "Commander par e-mail", "127": "Service &amp; RMA", "128": "Écrivez-nous le nombre d'unités et votre pays — nous répondons personnellement avec la disponibilité, les frais de port et le moyen de paiement. L'expédition est à la charge de l'acheteur.", "129": "Vos questions, nos réponses.", "130": "Puis-je l'utiliser comme partie du système de navigation d'un navire ?", "131": "Non. Le NMEA Link est un instrument de diagnostic et de test. Il n'est pas conçu pour remplacer un équipement de navigation ou de sécurité certifié et ne doit pas rester installé en permanence dans le système de navigation d'un navire.", "132": "Dois-je installer une appli ?", "133": "Non. Le NMEA Link crée son propre réseau Wi-Fi. Rejoignez-le et l'interface s'ouvre dans votre navigateur, sur téléphone, tablette ou PC.", "134": "A-t-il besoin d'internet ?", "135": "Non. Tout fonctionne dans le boîtier : il marche sur un bateau au milieu de nulle part comme sur un établi.", "136": "Quels débits prend-il en charge ?", "137": "4800, 9600, 38400 et 115200. Le boîtier détecte aussi le débit automatiquement.", "138": "Puis-je envoyer des trames NMEA, pas seulement les lire ?", "139": "Oui. Le générateur intégré permet de choisir un capteur, un type de trame et un intervalle pour simuler des instruments et tester des équipements.", "140": "Puis-je utiliser les données dans d'autres logiciels ?", "141": "Oui. Le boîtier diffuse les trames en UDP sur le port 10110, que vous pouvez recevoir dans OpenPlotter ou tout logiciel lisant du NMEA par le réseau.", "142": "Comment mettre à jour le firmware ?", "143": "Depuis l'interface du navigateur, par mise à jour à distance. Inutile d'ouvrir le boîtier ou d'utiliser un programmateur.", "144": "Que couvre la garantie ?", "145": "Un an à compter de la livraison, contre les défauts de fabrication et de composants. Si votre appareil tombe en panne en usage normal, nous le réparons ou le remplaçons. La garantie ne couvre pas les dommages dus à une mauvaise utilisation ou à un accident, comme une chute, un liquide ou un mauvais câblage.", "146": "Comment fonctionne le support 24/7 ?", "147": "Ouvrez une demande sur la page <a href=\"service.html\" style=\"color:var(--accent);\">Service &amp; RMA</a> à tout moment. Vous recevez aussitôt un numéro de référence et pouvez suivre l'état de votre demande en ligne.", "148": "Mon appareil a un problème.", "149": "Ouvrez une demande sur la page <a href=\"service.html\" style=\"color:var(--accent);\">Service &amp; RMA</a> : vous recevrez un numéro de référence à suivre à tout moment.", "150": "Loxodrome Tech", "151": "Nous écrire", "152": "Suivre une demande", "153": "GitHub"}, "es": {"0": "Qué hace", "1": "Cómo funciona", "2": "Specs", "3": "Soporte", "4": "Preguntas", "5": "Pedir", "6": "NMEA Link · Monitor y generador NMEA 0183 portátil", "7": "Mirá cada trama del bus. <em>Desde tu bolsillo.</em>", "8": "Un monitor y generador de tramas NMEA 0183 portátil, con su propio Wi-Fi. Conectalo al bus, abrí el celular y mirá en vivo GPS, AIS, sonda, viento y más — o simulá los sensores en el banco. Sin app, sin notebook, sin cables hasta el cockpit.", "9": "Pedir el NMEA Link", "10": "Ver cómo funciona", "11": "Wi-Fi integrado", "12": "No necesita app", "13": "Detección automática de baudios", "14": "Entrada RS-422/485 aislada", "15": "Actualizaciones OTA", "16": "NMEA Link — portátil, con su propia pantalla. Diseñado y construido en casa.", "17": "4800–115200", "18": "baudios, con detección automática", "19": "Wi-Fi", "20": "red propia, funciona sin internet", "21": "Cualquier navegador", "22": "celular, tablet o notebook — sin app", "23": "UDP 10110", "24": "enviá las tramas a tus propias herramientas", "25": "Un equipo pequeño para todo el diagnóstico.", "26": "Ya sea que estés poniendo en marcha una instalación, buscando una falla o probando un equipo sin barco, el NMEA Link reemplaza la notebook, el adaptador serie y el software de terminal.", "27": "Monitorear", "28": "Mirá el flujo NMEA 0183 en vivo y filtralo por familia — GPS, AIS, sonda, velocidad, rumbo, radar, clima, transductor. Pausá para leer, borrá para empezar de cero, bajá la velocidad cuando el bus está cargado.", "29": "Generar", "30": "Elegí un sensor, un tipo de trama y un intervalo, y enviala. Probá un plotter, una pantalla AIS o la entrada de un piloto automático en el banco, sin barco, sin sensor y sin fuente de señal.", "31": "Conectar", "32": "El equipo crea su propia red Wi-Fi. Conectate desde el celular y la interfaz se abre sola — o enviá las tramas por UDP a un plotter, OpenPlotter o cualquier software que ya uses.", "33": "De conectar a ver datos en vivo en menos de un minuto.", "34": "01 · CONECTAR", "35": "Enganchá la sonda a la línea NMEA 0183 (A/B). El equipo funciona con su batería interna.", "36": "02 · UNIRSE", "37": "Conectate a la red Wi-Fi «NMEA_Link» desde el celular. La interfaz se abre como portal cautivo.", "38": "03 · MIRAR", "39": "El equipo encuentra solo la velocidad y las tramas empiezan a fluir.", "40": "MONITOR EN VIVO", "41": "Tramas en vivo, agrupadas por familia, con selección de baudios, pausa, borrado y control de velocidad.", "42": "FILTROS", "43": "Filtros por color para aislar un instrumento o ver todo a la vez.", "44": "GENERADOR", "45": "Elegí un sensor, una trama y un intervalo, y empezá a enviar — ideal para pruebas en banco.", "46": "Características", "47": "Hecho para quienes arreglan barcos.", "48": "Detección automática de baudios", "49": "El firmware analiza la línea y se ajusta solo a la velocidad, de 4800 a 115200. Igual podés forzar una velocidad desde la interfaz.", "50": "Entrada aislada", "51": "El receptor RS-422/485 está aislado galvánicamente, así que una diferencia de masa a bordo no es tu problema.", "52": "Pantalla propia", "53": "El equipo muestra modo, velocidad y estado en el frente, para leerlo de un vistazo sin abrir nada.", "54": "Funciona sin internet", "55": "Todo corre en el equipo — Wi-Fi, interfaz y generador, con su propia batería. Sin internet, sin cuenta, sin nube.", "56": "Actualizaciones por aire", "57": "Subí el firmware nuevo desde el navegador. Las mejoras llegan a tu equipo sin abrir la caja ni conectar un programador.", "58": "Con batería", "59": "Una batería Li-ion recargable interna lo hace totalmente autónomo. Cargalo con cualquier cargador USB o power bank y seguí trabajando mientras carga.", "60": "Donde se gana su lugar", "61": "Hecho en el trabajo, para el trabajo.", "62": "El NMEA Link nace del trabajo real en electrónica naval — puesta en marcha y búsqueda de fallas a bordo — no de un laboratorio.", "63": "Puesta en marcha", "64": "Comprobar la instalación", "65": "Verificá que cada sensor transmita, a la velocidad correcta y con checksums válidos, antes de entregar el barco.", "66": "Búsqueda de fallas", "67": "Encontrar el equipo mudo", "68": "Mirá el bus desde cualquier punto del barco, aislá un instrumento con un filtro y mirá exactamente qué está enviando — o no.", "69": "Pruebas en banco", "70": "No hace falta barco", "71": "Generá las tramas que espera una pantalla, un plotter o un piloto automático y probalo en el banco o en el taller.", "72": "Especificaciones", "73": "Los detalles.", "74": "Norma", "75": "NMEA 0183", "76": "Entrada", "77": "Receptor RS-422/485 (MAX490), aislado galvánicamente", "78": "Velocidades", "79": "4800 · 9600 · 38400 · 115200, con detección automática", "80": "Familias de tramas", "81": "GPS, AIS, sonda, velocidad, rumbo, radar, clima, transductor", "82": "Inalámbrico", "83": "Red Wi-Fi propia con interfaz web en portal cautivo", "84": "Flujo de red", "85": "UDP, puerto 10110", "86": "Generador", "87": "Sensor, tipo de trama e intervalo a elección", "88": "Procesador", "89": "ESP32-S3", "90": "Pantalla", "91": "Integrada, muestra modo, velocidad y estado", "92": "Energía", "93": "Batería interna Li-ion 3,7 V (18650); carga por USB (solo energía)", "94": "Conexión", "95": "Sonda externa con conector DB9 y puntas de prueba", "96": "Verificaciones", "97": "Verificación de checksum, detección automática del sensor y clasificación de tramas", "98": "Firmware", "99": "Actualizaciones gratis por aire desde el navegador", "100": "Garantía", "101": "1 año contra fallas de fabricación y de componentes", "102": "Hardware", "103": "Diseño propio, PCB de 4 capas, caja portátil", "104": "Bajo el capó", "105": "Diseñado y ensamblado en casa.", "106": "Cada NMEA Link empieza como un esquemático y una placa vacía. El hardware, el firmware y la caja los desarrolla la misma persona que lo usa en los barcos.", "107": "La placa — 4 capas, diseñada en Altium.", "108": "Banco de ensamble, esquemático en pantalla.", "109": "Placa ensamblada con el ESP32-S3.", "110": "Prueba en banco con equipos NMEA reales.", "111": "Soporte y garantía", "112": "Respaldado por Loxodrome Tech.", "113": "Le comprás a quienes diseñan, fabrican y mantienen el NMEA Link — y que siguen disponibles después de la venta.", "114": "Soporte 24/7", "115": "Abrí una solicitud a cualquier hora, de día o de noche, desde cualquier lugar del mundo. Cada solicitud recibe un número de referencia que podés seguir en línea hasta que se resuelva.", "116": "Actualizaciones de firmware", "117": "Las novedades y correcciones llegan como actualizaciones de firmware, instaladas por aire desde tu navegador. Sin programador, sin abrir la caja, sin costo extra.", "118": "Garantía de 1 año", "119": "Cada equipo está cubierto por un año contra fallas de fabricación y de componentes. Los daños por mal uso o accidentes — golpes, líquidos, cableado incorrecto — no están cubiertos.", "120": "NMEA Link", "121": "Monitor y generador NMEA 0183 portátil", "122": "Fabricado en lotes chicos — cada equipo se ensambla y prueba a mano", "123": "Actualizaciones de firmware gratis por aire", "124": "Soporte 24/7 de Loxodrome Tech", "125": "Garantía de 1 año contra defectos", "126": "Pedir por email", "127": "Servicio y RMA", "128": "Escribinos cuántas unidades necesitás y tu país — te respondemos personalmente con disponibilidad, costo de envío y forma de pago. El envío lo paga el comprador.", "129": "Preguntas y respuestas.", "130": "¿Puedo usarlo como parte del sistema de navegación de un barco?", "131": "No. El NMEA Link es un instrumento de diagnóstico y prueba. No está pensado para reemplazar equipos certificados de navegación o seguridad ni para quedar instalado de forma permanente en el sistema de navegación de un barco.", "132": "¿Necesito instalar una app?", "133": "No. El NMEA Link crea su propia red Wi-Fi. Conectate y la interfaz se abre en tu navegador, en celular, tablet o notebook.", "134": "¿Necesita internet?", "135": "No. Todo corre en el propio equipo, así que funciona en un barco en medio de la nada o en un banco de trabajo.", "136": "¿Qué velocidades soporta?", "137": "4800, 9600, 38400 y 115200. El equipo también detecta la velocidad automáticamente.", "138": "¿Puedo enviar tramas NMEA, no solo leerlas?", "139": "Sí. El generador integrado te permite elegir un sensor, un tipo de trama y un intervalo para simular instrumentos y probar equipos.", "140": "¿Puedo usar los datos en otro software?", "141": "Sí. El equipo envía las tramas por UDP al puerto 10110, que podés recibir en OpenPlotter o en cualquier software que lea NMEA por red.", "142": "¿Cómo actualizo el firmware?", "143": "Desde la interfaz del navegador, con una actualización por aire. No hace falta abrir el equipo ni usar un programador.", "144": "¿Qué cubre la garantía?", "145": "Un año desde la entrega, contra fallas de fabricación y de componentes. Si tu equipo falla con uso normal, lo reparamos o lo reemplazamos. La garantía no cubre daños por mal uso o accidentes, como golpes, líquidos o cableado incorrecto.", "146": "¿Cómo funciona el soporte 24/7?", "147": "Abrí una solicitud en la página <a href=\"service.html\" style=\"color:var(--accent);\">Service &amp; RMA</a> a cualquier hora. Recibís enseguida un número de referencia y podés seguir el estado de tu solicitud en línea.", "148": "Mi equipo tiene un problema.", "149": "Abrí una solicitud en la página <a href=\"service.html\" style=\"color:var(--accent);\">Service &amp; RMA</a> y recibirás un número de referencia que podés seguir en cualquier momento.", "150": "Loxodrome Tech", "151": "Escribinos", "152": "Seguir una solicitud", "153": "GitHub"}};
+  const ALTD = {"fr": {"0": "Le NMEA Link portable tenu dans une main, avec son écran affichant le mode, le débit et l'état de pause.", "1": "Interface web NMEA Reader sur téléphone avec trames filtrées en direct, boutons de débit, pause et effacement.", "2": "Interface web NMEA Reader avec filtres colorés pour GPS, AIS, sondeur, vitesse, cap, radar, météo et transducteur.", "3": "Interface web NMEA Generator où l'on choisit un capteur, un type de trame et un intervalle pour simuler des données NMEA.", "4": "Le NMEA Link en main, à côté des pièces de son boîtier sur un établi.", "5": "Carte électronique verte nue du NMEA Link.", "6": "Carte dans un support d'assemblage sur un établi, schéma à l'écran.", "7": "Carte NMEA Link assemblée avec le module ESP32-S3 monté.", "8": "Prototype sur l'établi de test diffusant des données NMEA vers une tablette.", "9": "Le NMEA Link tenu au-dessus d'un établi."}, "es": {"0": "El NMEA Link portátil en una mano, mostrando en su pantalla el modo, la velocidad y el estado de pausa.", "1": "Interfaz web NMEA Reader en un celular con tramas filtradas en vivo, botones de velocidad, pausa y borrado.", "2": "Interfaz web NMEA Reader con filtros por color para GPS, AIS, sonda, velocidad, rumbo, radar, clima y transductor.", "3": "Interfaz web NMEA Generator donde se elige un sensor, un tipo de trama y un intervalo para simular datos NMEA.", "4": "El NMEA Link en la mano junto a las piezas de su caja en un banco de trabajo.", "5": "Placa de circuito verde vacía del NMEA Link.", "6": "Placa en un soporte de ensamble sobre un banco, con el esquemático en pantalla.", "7": "Placa NMEA Link ensamblada con el módulo ESP32-S3 montado.", "8": "Prototipo en el banco de pruebas enviando datos NMEA a una tablet.", "9": "El NMEA Link sostenido sobre un banco de trabajo."}};
+  const X = {
+    en: { slogan:"Instruments built to hold a bearing.", title:"NMEA Link — Portable NMEA 0183 Monitor & Generator | Loxodrome Tech",
+          priceReq:"Price on request", shipNote:"shipping not included", stockN:(n)=>"Limited batch — "+n+" unit"+(n===1?"":"s")+" available", sold:"This batch is sold out — join the next one",
+          buy:"Buy now", buyNote:"Secure checkout. Shipping is paid by the buyer and calculated for your country. Questions before you order? Open a request and we will answer." },
+    fr: { slogan:"Des instruments conçus pour tenir le cap.", title:"NMEA Link — Moniteur et générateur NMEA 0183 portable | Loxodrome Tech",
+          priceReq:"Prix sur demande", shipNote:"frais de port non inclus", stockN:(n)=>"Lot limité — "+n+" exemplaire"+(n===1?"":"s")+" disponible"+(n===1?"":"s"), sold:"Ce lot est épuisé — rejoignez le prochain",
+          buy:"Acheter maintenant", buyNote:"Paiement sécurisé. L'expédition est à la charge de l'acheteur et calculée pour votre pays. Une question avant de commander ? Ouvrez une demande, nous vous répondrons." },
+    es: { slogan:"Instrumentos hechos para mantener el rumbo.", title:"NMEA Link — Monitor y generador NMEA 0183 portátil | Loxodrome Tech",
+          priceReq:"Precio a consultar", shipNote:"envío no incluido", stockN:(n)=>"Lote limitado — "+n+" unidad"+(n===1?"":"es")+" disponible"+(n===1?"":"s"), sold:"Este lote está agotado — sumate al próximo",
+          buy:"Comprar ahora", buyNote:"Pago seguro. El envío lo paga el comprador y se calcula para tu país. ¿Dudas antes de pedir? Abrí una solicitud y te respondemos." }
+  };
+  let LANG = "en";
+  // Language choice: ?lang= in the link > saved choice > browser languages > time zone (country hint) > English.
+  // Nothing leaves the visitor's device: no IP lookup, no third-party service.
+  const TZ_LANG = [
+    [/^America\/(Argentina|Buenos_Aires|Montevideo|Santiago|Lima|Bogota|Caracas|La_Paz|Asuncion|Guayaquil|Mexico_City|Monterrey|Costa_Rica|Panama|Havana|Santo_Domingo|El_Salvador|Guatemala|Tegucigalpa|Managua)|^Europe\/Madrid|^Atlantic\/Canary|^Africa\/Ceuta/, "es"],
+    [/^Europe\/(Paris|Brussels|Luxembourg|Monaco)|^Europe\/Zurich|^America\/(Montreal|Toronto|Martinique|Guadeloupe|Cayenne)|^Indian\/(Reunion|Mayotte)|^Pacific\/(Noumea|Tahiti)|^Africa\/(Algiers|Tunis|Casablanca|Dakar|Abidjan)/, "fr"]
+  ];
+  function pickLang(){
+    try { const q = new URLSearchParams(location.search).get("lang"); if (q && X[q]) return q; } catch(e){}
+    try { const s = localStorage.getItem("lang"); if (s && X[s]) return s; } catch(e){}
+    const langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || "en"];
+    for (const l of langs) { const c = String(l).slice(0,2).toLowerCase(); if (X[c]) return c; }
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+      for (const [re, lg] of TZ_LANG) if (re.test(tz)) return lg;
+    } catch(e){}
+    return "en";
+  }
+
+  // Quick contact by WhatsApp (plain click-to-chat, no bot). Set the number with country code, digits only, e.g. "33612345678". Empty = button hidden.
+  const WA = { number: "33625451275" };
+  const WA_T = {
+    en:{ label:"WhatsApp us", msg:"Hello Loxodrome Tech, I am interested in the NMEA Link. Units: 1. Country: " },
+    fr:{ label:"Écrire sur WhatsApp", msg:"Bonjour Loxodrome Tech, le NMEA Link m'intéresse. Unités : 1. Pays : " },
+    es:{ label:"Escribir por WhatsApp", msg:"Hola Loxodrome Tech, me interesa el NMEA Link. Unidades: 1. País: " }
+  };
+  function renderWa(l){
+    const b = document.getElementById("wa-btn");
+    if (!b) return;
+    if (!WA.number) { b.hidden = true; return; }
+    const t = WA_T[l] || WA_T.en;
+    b.textContent = t.label;
+    b.href = "https://wa.me/" + WA.number + "?text=" + encodeURIComponent(t.msg);
+    b.hidden = false;
+  }
+
+  function setLang(l, save){
+    if (!X[l]) l = "en";
+    LANG = l;
+    document.documentElement.lang = l;
+    document.title = X[l].title;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      if (el.dataset.en === undefined) el.dataset.en = el.innerHTML;
+      el.innerHTML = (l === "en") ? el.dataset.en : (DICT[l][el.dataset.i18n] || el.dataset.en);
+    });
+    document.querySelectorAll("[data-i18n-alt]").forEach(el => {
+      if (el.dataset.enAlt === undefined) el.dataset.enAlt = el.getAttribute("alt") || "";
+      el.setAttribute("alt", (l === "en") ? el.dataset.enAlt : (ALTD[l][el.dataset.i18nAlt] || el.dataset.enAlt));
+    });
+    document.querySelectorAll("[data-x]").forEach(el => { el.textContent = X[l][el.dataset.x]; });
+    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === l ? "true" : "false"));
+    renderStore();
+    renderWa(l);
+    if (typeof renderShip === "function") renderShip();
+    if (save) { try { localStorage.setItem("lang", l); } catch(e){} }
+  }
+
+
+  // ======================================================================
+  //  Delivery & checkout (OFF by default). To switch it on:
+  //   1) fill in paypalClientId (PayPal Business > Apps & Credentials > Live > Client ID)
+  //   2) fill in mondialRelayBrand once your Mondial Relay pro account exists (optional)
+  //   3) check the prices below, then set enabled: true
+  // ======================================================================
+  const SHIP = {
+    enabled: false,
+    currency: "EUR",
+    paypalClientId: "",
+    mondialRelayBrand: "",          // 8-character code from your Mondial Relay pro account
+    parcelWeightGrams: 500,         // packed parcel weight, used to filter relay points
+    // EUR, parcel up to 500 g. REFERENCE VALUES — edit before enabling.
+    // number = price; null = carrier available but price still to be set (shows "On request"); missing = carrier not offered.
+    countries: {
+      FR:{ mr:3.89, col:5.49 },  BE:{ mr:null, col:14.99 }, LU:{ mr:null, col:14.99 }, ES:{ mr:null, col:14.99 },
+      PT:{ mr:null, col:14.99 }, IT:{ mr:null, col:14.99 }, NL:{ mr:null, col:14.99 }, DE:{ mr:null, col:14.99 },
+      AT:{ mr:null, col:14.99 }, PL:{ mr:null, col:14.99 }, AR:{ col:null }
+    }
+  };
+  Object.assign(X.en, {
+    sTitle:"Delivery & checkout", sSub:"Choose your country to see the delivery options and the exact shipping cost. Shipping is paid by the buyer.",
+    sCountry:"Delivery country", sSelect:"Select your country…", sOther:"Other country",
+    sMr:"Mondial Relay — pick-up point", sMrSub:"Collect your parcel at a relay point near you",
+    sCol:"Colissimo — home delivery", sColSub:"Tracked delivery to your address",
+    sOnReq:"On request", sRelayLabel:"Choose your pick-up point", sRelayChosen:"Pick-up point: ",
+    sRelayLater:"We will confirm your pick-up point by message after payment.",
+    sProduct:"NMEA Link", sShipping:"Shipping", sTotal:"Total", sQuoteBtn:"Request a quote instead",
+    sNeedRelay:"Please choose a pick-up point first.", sQuoteOnly:"Delivery to this country is arranged by quote. Use the button below and we will reply with the cost.",
+    sPick:"Select a delivery option to continue.", sPaid:"Thank you! Your payment was received. Order ", sPaid2:". We will send you the tracking number.",
+    sErr:"The payment could not be completed. Please try again or request a quote.", sPpFail:"Online payment is unavailable right now. Please request a quote.",
+    sMrFail:"The pick-up point map could not be loaded. Please request a quote."
+  });
+  Object.assign(X.fr, {
+    sTitle:"Livraison et paiement", sSub:"Choisissez votre pays pour voir les modes de livraison et le coût exact. Les frais de port sont à la charge de l'acheteur.",
+    sCountry:"Pays de livraison", sSelect:"Choisissez votre pays…", sOther:"Autre pays",
+    sMr:"Mondial Relay — point relais", sMrSub:"Retirez votre colis dans un point relais près de chez vous",
+    sCol:"Colissimo — livraison à domicile", sColSub:"Livraison suivie à votre adresse",
+    sOnReq:"Sur demande", sRelayLabel:"Choisissez votre point relais", sRelayChosen:"Point relais : ",
+    sRelayLater:"Nous confirmerons votre point relais par message après le paiement.",
+    sProduct:"NMEA Link", sShipping:"Livraison", sTotal:"Total", sQuoteBtn:"Demander un devis à la place",
+    sNeedRelay:"Veuillez d'abord choisir un point relais.", sQuoteOnly:"La livraison vers ce pays se fait sur devis. Utilisez le bouton ci-dessous et nous vous répondrons avec le coût.",
+    sPick:"Choisissez un mode de livraison pour continuer.", sPaid:"Merci ! Votre paiement a bien été reçu. Commande ", sPaid2:". Nous vous enverrons le numéro de suivi.",
+    sErr:"Le paiement n'a pas pu être finalisé. Réessayez ou demandez un devis.", sPpFail:"Le paiement en ligne est indisponible pour le moment. Veuillez demander un devis.",
+    sMrFail:"La carte des points relais n'a pas pu être chargée. Veuillez demander un devis."
+  });
+  Object.assign(X.es, {
+    sTitle:"Envío y pago", sSub:"Elegí tu país para ver las opciones de entrega y el costo exacto del envío. El envío lo paga el comprador.",
+    sCountry:"País de entrega", sSelect:"Elegí tu país…", sOther:"Otro país",
+    sMr:"Mondial Relay — punto de retiro", sMrSub:"Retirá tu paquete en un punto relay cercano",
+    sCol:"Colissimo — entrega a domicilio", sColSub:"Entrega con seguimiento en tu dirección",
+    sOnReq:"A consultar", sRelayLabel:"Elegí tu punto de retiro", sRelayChosen:"Punto de retiro: ",
+    sRelayLater:"Te confirmaremos tu punto de retiro por mensaje después del pago.",
+    sProduct:"NMEA Link", sShipping:"Envío", sTotal:"Total", sQuoteBtn:"Pedir cotización en su lugar",
+    sNeedRelay:"Primero elegí un punto de retiro.", sQuoteOnly:"La entrega a este país se coordina por cotización. Usá el botón de abajo y te respondemos con el costo.",
+    sPick:"Elegí una opción de entrega para continuar.", sPaid:"¡Gracias! Recibimos tu pago. Pedido ", sPaid2:". Te enviaremos el número de seguimiento.",
+    sErr:"No se pudo completar el pago. Intentá de nuevo o pedí una cotización.", sPpFail:"El pago en línea no está disponible ahora. Pedí una cotización.",
+    sMrFail:"No se pudo cargar el mapa de puntos de retiro. Pedí una cotización."
+  });
+
+  const SH = { cc:"", carrier:"", relay:null, ppDone:false };
+  const _loaded = {};
+  function loadScript(src){
+    if (_loaded[src]) return _loaded[src];
+    _loaded[src] = new Promise((res, rej) => { const el = document.createElement("script"); el.src = src; el.async = false; el.onload = res; el.onerror = () => rej(new Error("load " + src)); document.head.appendChild(el); });
+    return _loaded[src];
+  }
+  function loadCss(href){ if (document.querySelector('link[href="'+href+'"]')) return; const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; document.head.appendChild(l); }
+  const eur = n => "€" + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, "");
+  const prodPrice = () => parseFloat(String(STORE.price || "0").replace(/[^0-9.,]/g, "").replace(",", ".")) || 0;
+  const regionName = cc => { try { return new Intl.DisplayNames([LANG], { type:"region" }).of(cc) || cc; } catch(e){ return cc; } };
+  const shipMsg = (t, ok) => { const m = document.getElementById("ship-msg"); m.textContent = t || ""; m.className = ok ? "ship-ok" : "ship-msg"; };
+  function carrierPrice(){ const c = SHIP.countries[SH.cc]; return c && SH.carrier ? c[SH.carrier === "mr" ? "mr" : "col"] : undefined; }
+
+  function renderShip(){
+    const card = document.getElementById("ship-card");
+    if (!card) return;
+    if (!SHIP.enabled || !prodPrice()) { card.hidden = true; return; }
+    card.hidden = false;
+    const x = X[LANG];
+    const L = { title:x.sTitle, sub:x.sSub, country:x.sCountry, relayLabel:x.sRelayLabel, product:x.sProduct, shipping:x.sShipping, total:x.sTotal, quoteBtn:x.sQuoteBtn };
+    card.querySelectorAll("[data-sx]").forEach(el => { el.textContent = L[el.dataset.sx]; });
+    document.getElementById("t-prod").textContent = eur(prodPrice());
+    // country list
+    const sel = document.getElementById("ship-country");
+    const codes = Object.keys(SHIP.countries).sort((a, b) => regionName(a).localeCompare(regionName(b), LANG));
+    sel.innerHTML = '<option value="">' + x.sSelect + '</option>' + codes.map(c => '<option value="' + c + '">' + regionName(c) + '</option>').join("") + '<option value="XX">' + x.sOther + '</option>';
+    sel.value = SH.cc;
+    renderOpts();
+  }
+
+  function renderOpts(){
+    const x = X[LANG], box = document.getElementById("ship-opts"), c = SHIP.countries[SH.cc];
+    let h = "";
+    if (c) {
+      [["mr", x.sMr, x.sMrSub], ["col", x.sCol, x.sColSub]].forEach(([k, name, sub]) => {
+        if (!(k in c)) return;
+        const price = c[k], ok = typeof price === "number";
+        h += '<label class="opt' + (ok ? "" : " off") + '"><input type="radio" name="carrier" value="' + k + '"' + (ok ? "" : " disabled") + (SH.carrier === k ? " checked" : "") + '>' +
+             '<span><b>' + name + '</b><small>' + sub + '</small></span><span class="pr">' + (ok ? eur(price) : x.sOnReq) + '</span></label>';
+      });
+    }
+    box.innerHTML = h;
+    box.querySelectorAll("input").forEach(i => i.addEventListener("change", () => { SH.carrier = i.value; SH.relay = null; updateShip(); }));
+    updateShip();
+  }
+
+  function updateShip(){
+    const x = X[LANG], price = carrierPrice(), ok = typeof price === "number";
+    document.getElementById("t-ship").textContent = ok ? eur(price) : "—";
+    document.getElementById("t-total").textContent = ok ? eur(prodPrice() + price) : "—";
+    const needRelay = SH.carrier === "mr" && SHIP.mondialRelayBrand;
+    document.getElementById("mr-wrap").hidden = !(ok && needRelay);
+    document.getElementById("relay-sel").textContent = SH.relay ? x.sRelayChosen + SH.relay.label : (ok && SH.carrier === "mr" && !SHIP.mondialRelayBrand ? x.sRelayLater : "");
+    if (SH.ppDone) return;
+    if (SH.cc === "XX" || (SH.cc && !SHIP.countries[SH.cc])) shipMsg(x.sQuoteOnly);
+    else if (SH.cc && SHIP.countries[SH.cc] && !Object.values(SHIP.countries[SH.cc]).some(v => typeof v === "number")) shipMsg(x.sQuoteOnly);
+    else if (!ok) shipMsg(SH.cc ? x.sPick : "");
+    else shipMsg("");
+    if (ok && needRelay) initRelay();
+    renderPay(ok);
+  }
+
+  function initRelay(){
+    const cc = SH.cc, key = cc + "|" + SHIP.mondialRelayBrand;
+    if (SH.mrKey === key) return;
+    SH.mrKey = key;
+    const w = document.getElementById("mr-widget"); w.innerHTML = "";
+    loadCss("https://unpkg.com/leaflet/dist/leaflet.css");
+    loadScript("https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js")
+      .then(() => loadScript("https://unpkg.com/leaflet/dist/leaflet.js"))
+      .then(() => loadScript("https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js"))
+      .then(() => {
+        window.jQuery("#mr-widget").MR_ParcelShopPicker({
+          Target: "#mr-target", Brand: (SHIP.mondialRelayBrand + "        ").slice(0, 8), Country: cc, ColLivMod: "24R", NbResults: "7", Weight: String(SHIP.parcelWeightGrams),
+          OnParcelShopSelected: d => {
+            const id = d.ID || d.Id || d.id || "", name = d.Nom || d.Name || "", cp = d.CP || d.PostCode || "", city = d.Ville || d.City || "";
+            SH.relay = { id, label: [name, [cp, city].filter(Boolean).join(" ")].filter(Boolean).join(", ") };
+            updateShip();
+          }
+        });
+      })
+      .catch(() => { SH.mrKey = ""; shipMsg(X[LANG].sMrFail); });
+  }
+
+  function renderPay(ok){
+    const wrap = document.getElementById("pp-wrap");
+    const needRelay = SH.carrier === "mr" && SHIP.mondialRelayBrand;
+    const sig = [SH.cc, SH.carrier, ok, !!SHIP.paypalClientId].join("|");
+    if (!ok || !SHIP.paypalClientId) { wrap.innerHTML = ""; SH.ppSig = ""; return; }
+    if (SH.ppSig === sig) return;
+    SH.ppSig = sig; wrap.innerHTML = "";
+    const cur = SHIP.currency, prod = prodPrice(), ship = carrierPrice();
+    const lc = { en:"en_US", fr:"fr_FR", es:"es_ES" }[LANG];
+    loadScript("https://www.paypal.com/sdk/js?client-id=" + encodeURIComponent(SHIP.paypalClientId) + "&currency=" + cur + "&components=buttons&locale=" + lc)
+      .then(() => window.paypal.Buttons({
+        style: { layout:"vertical", shape:"rect", label:"pay" },
+        onClick: (d, actions) => { if (needRelay && !SH.relay) { shipMsg(X[LANG].sNeedRelay); return actions.reject(); } shipMsg(""); return actions.resolve(); },
+        createOrder: (d, actions) => actions.order.create({
+          intent: "CAPTURE",
+          purchase_units: [{
+            description: ("NMEA Link — " + (SH.carrier === "mr" ? "Mondial Relay" + (SH.relay ? " " + SH.relay.id + " " + SH.relay.label : "") : "Colissimo") + " — " + SH.cc).slice(0, 127),
+            custom_id: ("NMEA|" + SH.carrier + "|" + SH.cc + "|" + (SH.relay ? SH.relay.id : "")).slice(0, 127),
+            amount: { currency_code: cur, value: (prod + ship).toFixed(2), breakdown: { item_total: { currency_code: cur, value: prod.toFixed(2) }, shipping: { currency_code: cur, value: ship.toFixed(2) } } },
+            items: [{ name:"NMEA Link", quantity:"1", category:"PHYSICAL_GOODS", unit_amount: { currency_code: cur, value: prod.toFixed(2) } }]
+          }],
+          application_context: { shipping_preference: "GET_FROM_FILE" }
+        }),
+        onApprove: (d, actions) => actions.order.capture().then(() => { SH.ppDone = true; document.getElementById("pp-wrap").innerHTML = ""; shipMsg(X[LANG].sPaid + d.orderID + X[LANG].sPaid2, true); }),
+        onError: () => shipMsg(X[LANG].sErr)
+      }).render("#pp-wrap"))
+      .catch(() => { SH.ppSig = ""; shipMsg(X[LANG].sPpFail); });
+  }
+
+  function initShip(){
+    const sel = document.getElementById("ship-country");
+    if (!sel || sel.dataset.bound) { renderShip(); return; }
+    sel.dataset.bound = "1";
+    sel.addEventListener("change", () => { SH.cc = sel.value; SH.carrier = ""; SH.relay = null; SH.mrKey = ""; SH.ppSig = ""; renderOpts(); });
+    renderShip();
+  }
+
+  function renderStore(){
+    const x = X[LANG];
+    const price = document.getElementById("price");
+    price.textContent = STORE.price || x.priceReq;
+    if (STORE.price && STORE.priceNote) {
+      const s = document.createElement("small");
+      s.textContent = (STORE.priceNote === "shipping not included") ? x.shipNote : STORE.priceNote;
+      price.appendChild(s);
+    }
+    if (typeof STORE.stock === "number") {
+      document.getElementById("stock-text").textContent = STORE.stock > 0 ? x.stockN(STORE.stock) : x.sold;
+      document.getElementById("stock").hidden = false;
+    }
+    if (STORE.paymentUrl) {
+      const b = document.getElementById("buy-btn");
+      b.removeAttribute("data-i18n"); b.textContent = x.buy;
+      b.href = STORE.paymentUrl; b.target = "_blank"; b.rel = "noopener";
+      const n = document.getElementById("order-note");
+      n.removeAttribute("data-i18n"); n.textContent = x.buyNote;
+    }
+  }
+
+  (function(){
+    document.getElementById("yr").textContent = new Date().getFullYear();
+    document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => setLang(b.dataset.lang, true)));
+    setLang(pickLang(), false);
+    initShip();
+
+    const els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) { els.forEach(e => e.classList.add("in")); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(e => io.observe(e));
+  })();
+</script>
+</body>
+</html>
